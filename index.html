@@ -188,15 +188,21 @@
     </div>
 
     <!-- Script Logic -->
-   <script>
-    // GANTI URL INI DENGAN URL WEB APP GOOGLE APPS SCRIPT ANDA
+<script>
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyDMIWfN9OqNGc7KzfMcBQbNILvnsh9KI--mgWdQDV5A5QvQRD250hKVYxWPsT_cPju/exec"; 
 
-    // 1. Cek Login Saat Halaman Dimuat (DIPERKETAT)
+    // 1. SISTEM BOOTING KETAT (Menghancurkan Cache Netlify)
     document.addEventListener("DOMContentLoaded", () => {
+        // PAKSA KEMBALI KE TAMPILAN AWAL (LOGIN) DULU APAPUN YANG TERJADI
+        document.getElementById('main-app').classList.add('hidden-view');
+        document.getElementById('auth-overlay').classList.remove('hidden-view');
+        document.getElementById('login-form').classList.remove('hidden-view');
+        document.getElementById('register-form').classList.add('hidden-view');
+
+        // Baru setelah itu cek memori, apakah dia punya tiket login?
         const activeUser = localStorage.getItem('ai_user_name');
-        // Pastikan isi storage tidak null dan tidak kosong ("")
         if (activeUser && activeUser.trim() !== "") {
+            // Jika ada tiket login, baru buka dashboardnya
             masukDashboard(activeUser);
         }
     });
@@ -228,7 +234,6 @@
             const data = await response.json();
 
             if (data.status === "success") {
-                // Simpan login
                 localStorage.setItem('ai_user_name', data.nama);
                 masukDashboard(data.nama);
                 document.getElementById('login-username').value = "";
@@ -289,23 +294,21 @@
         document.getElementById('welcome-name').innerText = name;
     }
 
-    // 6. Fungsi Logout (AGRESIF & PERMANEN)
+    // 6. Fungsi Logout (TANPA RELOAD SAMA SEKALI - MURNI SPA)
     function handleLogout(event) {
         if(event) event.preventDefault();
 
-        // Trik Agresif: Timpa dengan string kosong dulu, baru diremove, lalu diclear.
-        // Ini memaksa browser yang bandel untuk benar-benar menghapus memori
-        localStorage.setItem('ai_user_name', '');
+        // Bersihkan seluruh histori memori browser
         localStorage.removeItem('ai_user_name');
         localStorage.clear();
         sessionStorage.clear();
         
-        // Matikan iframe
+        // Matikan Iframe agar HP pengguna tidak berat
         if(document.getElementById('tool-iframe')) {
             document.getElementById('tool-iframe').src = "";
         }
         
-        // Ubah UI seketika ke form Login
+        // MANIPULASI UI LANGSUNG (Tanpa Refresh Halaman)
         document.getElementById('main-app').classList.add('hidden-view');
         document.getElementById('auth-overlay').classList.remove('hidden-view');
         document.getElementById('login-form').classList.remove('hidden-view');
@@ -314,12 +317,6 @@
         if(document.getElementById('login-username')) {
             document.getElementById('login-username').value = "";
         }
-
-        // Silent Reload: Merefresh halaman ke URL asli setelah 0.2 detik.
-        // Tujuannya agar memori RAM browser Anda tereset total dan tidak menyimpan state dashboard lagi.
-        setTimeout(() => {
-            window.location.replace(window.location.pathname);
-        }, 200);
     }
 
     // 7. Toggle Hamburger Menu (Mobile)
