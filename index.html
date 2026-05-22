@@ -85,7 +85,8 @@
             </div>
             <div class="flex items-center gap-3">
                 <span class="text-sm font-medium text-gray-600">Halo, <span id="display-name" class="font-bold text-gray-900">M. Fahrul Alam</span>!</span>
-                <button onclick="handleLogout()" class="bg-red-100 text-red-600 px-3 py-1 rounded-md text-sm font-bold hover:bg-red-200">Logout</button>
+                <button type="button" onclick="handleLogout(event)" class="bg-red-100 text-red-600 px-3 py-1 rounded-md text-sm font-bold hover:bg-red-200">
+    Logout</button>
             </div>
         </header>
 
@@ -303,29 +304,32 @@
     }
 
    
-   // 6. Fungsi Logout (VERSI ANTI CACHE 100%)
-    function handleLogout() {
-        // 1. Hapus data user dari penyimpanan browser
+   // 6. Fungsi Logout (SUPER ANTI CACHE & ANTI REFRESH)
+    function handleLogout(event) {
+        // 1. Cegah browser melakukan klik default/refresh halaman
+        if(event) event.preventDefault();
+
+        // 2. Hapus memori login (Gunakan keduanya agar bersih tuntas)
         localStorage.removeItem('ai_user_name');
+        localStorage.clear(); // Bersihkan seluruh cache storage di domain ini
         
-        // 2. Sembunyikan Dashboard dan kosongkan iframe agar tidak berat
+        // 3. Matikan Iframe agar memori HP/Laptop lega
+        if(document.getElementById('tool-iframe')) {
+            document.getElementById('tool-iframe').src = "";
+        }
+        
+        // 4. Sembunyikan Layout Dashboard Utama
         document.getElementById('main-app').classList.add('hidden-view');
-        document.getElementById('tool-iframe').src = "";
         
-        // 3. Tampilkan kembali Overlay Hitam
+        // 5. Tampilkan Layout Login (Overlay)
         document.getElementById('auth-overlay').classList.remove('hidden-view');
-        
-        // 4. Pastikan form Login yang muncul (bukan form daftar)
         document.getElementById('login-form').classList.remove('hidden-view');
         document.getElementById('register-form').classList.add('hidden-view');
         
-        // 5. Bersihkan kolom input username
+        // 6. Kosongkan Form Input Username
         if(document.getElementById('login-username')) {
             document.getElementById('login-username').value = "";
         }
-        
-        // KITA TIDAK MEMAKAI location.reload() SAMA SEKALI
-        // Jadi browser / Netlify tidak akan sempat membaca cache lamanya.
     }
 
     // 7. Toggle Sidebar Mobile (Hamburger Menu)
