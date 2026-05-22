@@ -303,22 +303,29 @@
     }
 
    
-    // 6. Fungsi Logout (DIPERBAIKI)
+   // 6. Fungsi Logout (VERSI ANTI CACHE 100%)
     function handleLogout() {
-        // Hapus data user dari penyimpanan browser
+        // 1. Hapus data user dari penyimpanan browser
         localStorage.removeItem('ai_user_name');
         
-        // Ubah tampilan secara INSTAN ke halaman login (agar tidak nunggu reload)
+        // 2. Sembunyikan Dashboard dan kosongkan iframe agar tidak berat
         document.getElementById('main-app').classList.add('hidden-view');
+        document.getElementById('tool-iframe').src = "";
+        
+        // 3. Tampilkan kembali Overlay Hitam
         document.getElementById('auth-overlay').classList.remove('hidden-view');
         
-        // Bersihkan inputan yang mungkin tertinggal
+        // 4. Pastikan form Login yang muncul (bukan form daftar)
+        document.getElementById('login-form').classList.remove('hidden-view');
+        document.getElementById('register-form').classList.add('hidden-view');
+        
+        // 5. Bersihkan kolom input username
         if(document.getElementById('login-username')) {
             document.getElementById('login-username').value = "";
         }
         
-        // Paksa browser kembali ke URL asli (membersihkan cache path GitHub/Netlify)
-        window.location.replace(window.location.pathname);
+        // KITA TIDAK MEMAKAI location.reload() SAMA SEKALI
+        // Jadi browser / Netlify tidak akan sempat membaca cache lamanya.
     }
 
     // 7. Toggle Sidebar Mobile (Hamburger Menu)
