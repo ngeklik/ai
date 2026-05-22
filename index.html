@@ -188,19 +188,20 @@
     </div>
 
     <!-- Script Logic -->
-    <script>
-    // URL Google Apps Script Anda (Sudah diupdate)
+   <script>
+    // GANTI URL INI DENGAN URL WEB APP GOOGLE APPS SCRIPT ANDA
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyDMIWfN9OqNGc7KzfMcBQbNILvnsh9KI--mgWdQDV5A5QvQRD250hKVYxWPsT_cPju/exec"; 
 
-    // 1. Cek Status Login Saat Halaman Dimuat
+    // 1. Cek Login Saat Halaman Dimuat (DIPERKETAT)
     document.addEventListener("DOMContentLoaded", () => {
         const activeUser = localStorage.getItem('ai_user_name');
-        if (activeUser) {
+        // Pastikan isi storage tidak null dan tidak kosong ("")
+        if (activeUser && activeUser.trim() !== "") {
             masukDashboard(activeUser);
         }
     });
 
-    // 2. Toggle Pindah Form Login / Register
+    // 2. Toggle Form Login/Register
     function toggleAuth(type) {
         if (type === 'register') {
             document.getElementById('login-form').classList.add('hidden-view');
@@ -211,47 +212,38 @@
         }
     }
 
-    // 3. Logic Login (Mengecek Username ke Spreadsheet)
-    async function handleLogin() {
+    // 3. Logic Login Menggunakan fetch GET
+    async function handleLogin(event) {
+        event.preventDefault(); 
         const username = document.getElementById('login-username').value;
         const btnLogin = document.getElementById('btn-login');
 
-        if (username.trim() === "") {
-            alert("Masukkan username!");
-            return;
-        }
+        if (username.trim() === "") return;
         
-        // Ubah tampilan tombol jadi loading (jika ID btn-login belum ada di HTML Anda, pastikan ditambahkan)
-        if(btnLogin) {
-            btnLogin.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Mengecek...';
-            btnLogin.disabled = true;
-        }
+        btnLogin.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Mengecek...';
+        btnLogin.disabled = true;
 
         try {
-            // Tembak URL dengan parameter GET
             const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=login&username=${username}`);
             const data = await response.json();
 
             if (data.status === "success") {
-                // Berhasil login, simpan nama ke browser
+                // Simpan login
                 localStorage.setItem('ai_user_name', data.nama);
                 masukDashboard(data.nama);
-                document.getElementById('login-username').value = ""; // Bersihkan form
+                document.getElementById('login-username').value = "";
             } else {
-                alert("Login Gagal: Username belum terdaftar. Silakan Daftar terlebih dahulu.");
+                alert("Login Gagal: Username belum terdaftar. Silakan daftar terlebih dahulu.");
             }
         } catch (error) {
-            alert("Terjadi kesalahan jaringan. Cek koneksi atau pastikan URL Apps Script benar dan sudah di Deploy versi terbaru.");
-            console.error(error);
+            alert("Terjadi kesalahan. Pastikan jaringan baik dan Apps Script aktif.");
         } finally {
-            if(btnLogin) {
-                btnLogin.innerHTML = '<span>Masuk Dashboard</span>';
-                btnLogin.disabled = false;
-            }
+            btnLogin.innerHTML = '<span>Masuk Dashboard</span>';
+            btnLogin.disabled = false;
         }
     }
 
-    // 4. Logic Register Integrasi Spreadsheet (Anti CORS / URLSearchParams)
+    // 4. Logic Register Integrasi Spreadsheet
     document.getElementById('form-pendaftaran').addEventListener('submit', async function(e) {
         e.preventDefault();
         
@@ -259,7 +251,6 @@
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Mendaftar...';
         btn.disabled = true;
 
-        // Mengubah data jadi format form URL (wajib untuk Google Apps Script)
         const data = new URLSearchParams();
         data.append('nama', document.getElementById('reg-name').value);
         data.append('username', document.getElementById('reg-username').value);
@@ -267,11 +258,7 @@
         data.append('domisili', document.getElementById('reg-domisili').value);
 
         try {
-            const response = await fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                body: data
-            });
-            
+            const response = await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: data });
             const result = await response.json();
 
             if (result.result === "success") {
@@ -280,11 +267,9 @@
                 document.getElementById('login-username').value = document.getElementById('reg-username').value;
                 document.getElementById('form-pendaftaran').reset();
             } else {
-                alert("Gagal menyimpan data, silakan coba lagi.");
+                alert("Gagal menyimpan data.");
             }
         } catch (error) {
-            // Google kadang merespon sukses tapi memblokir format balasannya (Opaque Response)
-            // Ini normal, kita asumsikan pendaftaran masuk.
             alert("Pendaftaran Terkirim! Silakan coba Login.");
             toggleAuth('login');
             document.getElementById('login-username').value = document.getElementById('reg-username').value;
@@ -295,7 +280,7 @@
         }
     });
 
-    // 5. Fungsi Masuk Dashboard (Mengubah UI)
+    // 5. Masuk ke Dashboard
     function masukDashboard(name) {
         document.getElementById('auth-overlay').classList.add('hidden-view');
         document.getElementById('main-app').classList.remove('hidden-view');
@@ -304,36 +289,40 @@
         document.getElementById('welcome-name').innerText = name;
     }
 
-   
-   // 6. Fungsi Logout (SUPER ANTI CACHE & ANTI REFRESH)
+    // 6. Fungsi Logout (AGRESIF & PERMANEN)
     function handleLogout(event) {
-        // 1. Cegah browser melakukan klik default/refresh halaman
         if(event) event.preventDefault();
 
-        // 2. Hapus memori login (Gunakan keduanya agar bersih tuntas)
+        // Trik Agresif: Timpa dengan string kosong dulu, baru diremove, lalu diclear.
+        // Ini memaksa browser yang bandel untuk benar-benar menghapus memori
+        localStorage.setItem('ai_user_name', '');
         localStorage.removeItem('ai_user_name');
-        localStorage.clear(); // Bersihkan seluruh cache storage di domain ini
+        localStorage.clear();
+        sessionStorage.clear();
         
-        // 3. Matikan Iframe agar memori HP/Laptop lega
+        // Matikan iframe
         if(document.getElementById('tool-iframe')) {
             document.getElementById('tool-iframe').src = "";
         }
         
-        // 4. Sembunyikan Layout Dashboard Utama
+        // Ubah UI seketika ke form Login
         document.getElementById('main-app').classList.add('hidden-view');
-        
-        // 5. Tampilkan Layout Login (Overlay)
         document.getElementById('auth-overlay').classList.remove('hidden-view');
         document.getElementById('login-form').classList.remove('hidden-view');
         document.getElementById('register-form').classList.add('hidden-view');
         
-        // 6. Kosongkan Form Input Username
         if(document.getElementById('login-username')) {
             document.getElementById('login-username').value = "";
         }
+
+        // Silent Reload: Merefresh halaman ke URL asli setelah 0.2 detik.
+        // Tujuannya agar memori RAM browser Anda tereset total dan tidak menyimpan state dashboard lagi.
+        setTimeout(() => {
+            window.location.replace(window.location.pathname);
+        }, 200);
     }
 
-    // 7. Toggle Sidebar Mobile (Hamburger Menu)
+    // 7. Toggle Hamburger Menu (Mobile)
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebar-overlay');
@@ -347,19 +336,18 @@
         }
     }
 
-    // 8. Tampilkan Menu Utama (Home)
+    // 8. Tampilkan Dashboard Utama
     function showHome() {
         document.getElementById('iframe-view').classList.add('hidden-view');
         document.getElementById('home-view').classList.remove('hidden-view');
-        document.getElementById('tool-iframe').src = ""; // Matikan iframe jika sedang tidak dipakai
+        document.getElementById('tool-iframe').src = "";
         
-        // Auto tutup sidebar jika di mobile
         if (window.innerWidth < 768) {
-            toggleSidebar(); 
+            toggleSidebar();
         }
     }
 
-    // 9. Fungsi Buka Tool / Iframe
+    // 9. Buka Iframe Tool
     function openTool(url, title) {
         document.getElementById('home-view').classList.add('hidden-view');
         document.getElementById('iframe-view').classList.remove('hidden-view');
@@ -367,7 +355,6 @@
         document.getElementById('iframe-title').innerText = title;
         document.getElementById('tool-iframe').src = url;
 
-        // Auto tutup sidebar jika di mobile
         if (window.innerWidth < 768 && !document.getElementById('sidebar').classList.contains('-translate-x-full')) {
             toggleSidebar(); 
         }
