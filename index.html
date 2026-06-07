@@ -134,6 +134,18 @@
 
                 <!-- 1. Home Dashboard -->
                 <div id="home-view" class="p-4 md:p-8">
+                    <button onclick="openTool('https://slugpost.com/assis-gen', '')" class="fixed bottom-6 right-6 z-50 flex items-center justify-center group cursor-pointer transition-all duration-300 hover:scale-110">
+    <!-- Efek Gelombang / Radar (Memancar Terus-menerus) -->
+    <span class="absolute w-full h-full rounded-full bg-[#25D366] opacity-70 animate-ping"></span>
+    <!-- Gambar (Ditambahkan relative z-10 agar berada di depan gelombang) -->
+    <img src="https://cdn.laju.dev/slugpost//assets/019ea0b9-8309-737c-8e47-cb427f46df9b.webp" alt="AI Ngeklik" class="relative z-10 w-20 h-20 rounded-full border-4 border-white shadow-2xl object-cover bg-white">
+    <!-- Tooltip (Ditambahkan z-20 agar tidak tertutup animasi) -->
+    <span class="absolute right-[95px] bg-white text-gray-800 text-sm font-bold px-3 py-1.5 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-gray-100 z-20">
+        AI Asisten Ngeklik
+        <!-- Panah tooltip -->
+        <svg class="absolute text-white h-3 w-full left-0 top-1/2 -translate-y-1/2 ml-full translate-x-full" x="0px" y="0px" viewBox="0 0 255 255" xml:space="preserve"><polygon class="fill-current" points="0,0 127.5,127.5 0,255"/></svg>
+    </span>
+</button>
                     <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-6 md:p-8 text-white shadow-lg mb-8">
                         <h2 class="text-2xl md:text-3xl font-bold mb-2">Selamat Datang, <span id="welcome-name"></span>! 👋</h2>
                         <p class="opacity-90">Pilih tool generator di bawah ini untuk mulai membuat prompt AI yang teroptimasi dengan mudah.</p>
