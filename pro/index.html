@@ -89,57 +89,88 @@
             <p class="text-center mt-8 text-sm text-gray-600">Belum punya akses? <a href="#" onclick="switchModal('form-register')" class="text-brand-600 font-bold hover:underline">Daftar di sini</a></p>
         </div>
 
-        <!-- REGISTER -->
-        <div id="form-register" class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md hidden max-h-[90vh] overflow-y-auto border border-gray-100">
+      <!-- REGISTER -->
+        <div id="form-register" class="bg-white rounded-3xl shadow-2xl p-6 md:p-8 w-full max-w-md hidden max-h-[90vh] overflow-y-auto border border-gray-100">
             <div class="text-center mb-6">
-                <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"><i class="fa-solid fa-user-plus"></i></div>
+                <div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3 text-xl"><i class="fa-solid fa-user-plus"></i></div>
                 <h2 class="text-2xl font-bold text-gray-900">Pendaftaran Akses</h2>
             </div>
             <div class="space-y-4">
                 <div><label class="block text-sm font-semibold mb-1">Nama Lengkap</label><input type="text" id="reg-nama" class="w-full px-4 py-3 rounded-xl border bg-gray-50 outline-none focus:ring-2 focus:ring-emerald-500 transition-all"></div>
                 <div><label class="block text-sm font-semibold mb-1">Username (Bebas)</label><input type="text" id="reg-username" class="w-full px-4 py-3 rounded-xl border bg-gray-50 outline-none focus:ring-2 focus:ring-emerald-500 transition-all"></div>
                 <div><label class="block text-sm font-semibold mb-1">No. WhatsApp</label><input type="number" id="reg-wa" class="w-full px-4 py-3 rounded-xl border bg-gray-50 outline-none focus:ring-2 focus:ring-emerald-500 transition-all" placeholder="0812..."></div>
+                
+                <!-- Pemilihan Paket -->
                 <div>
                     <label class="block text-sm font-semibold mb-1">Pilih Durasi & Harga</label>
-                    <select id="reg-paket" class="w-full px-4 py-3 rounded-xl border bg-gray-50 outline-none cursor-pointer focus:ring-2 focus:ring-emerald-500 transition-all">
+                    <select id="reg-paket" onchange="calcTotal('reg')" class="w-full px-4 py-3 rounded-xl border bg-gray-50 outline-none cursor-pointer focus:ring-2 focus:ring-emerald-500 transition-all">
                         <option value="1 Hari">1 Hari - Rp 5.000</option>
                         <option value="7 Hari">7 Hari - Rp 25.000</option>
                         <option value="14 Hari">14 Hari - Rp 45.000</option>
                         <option value="30 Hari">30 Hari - Rp 80.000</option>
                     </select>
                 </div>
+                
+                <!-- Input Kupon dengan Tombol Cek -->
                 <div>
                     <label class="block text-sm font-semibold mb-1 text-emerald-600"><i class="fa-solid fa-ticket mr-1"></i> Kode Kupon (Opsional)</label>
-                    <input type="text" id="reg-kupon" class="w-full px-4 py-3 rounded-xl border-emerald-200 bg-emerald-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none uppercase" placeholder="Masukkan jika ada">
+                    <div class="flex gap-2">
+                        <input type="text" id="reg-kupon" class="w-full px-4 py-3 rounded-xl border-emerald-200 bg-emerald-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none uppercase transition-all" placeholder="Ketik kode kupon...">
+                        <button type="button" onclick="cekKuponAPI('reg')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 rounded-xl shadow-md transition-colors">Cek</button>
+                    </div>
+                    <p id="reg-msg-kupon" class="text-xs font-bold mt-1 hidden"></p>
                 </div>
+
+                <!-- Live Total Preview -->
+                <div class="bg-gray-100 p-4 rounded-xl border border-gray-200 flex justify-between items-center mt-2">
+                    <span class="text-sm font-bold text-gray-600">Total Bayar:</span>
+                    <span id="reg-total-display" class="text-xl font-bold text-gray-900">Rp 5.000</span>
+                </div>
+
                 <button onclick="handleRegister()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-emerald-500/30 mt-2 transition-all" id="btn-register">Lanjut ke Pembayaran</button>
             </div>
             <p class="text-center mt-6 text-sm text-gray-600">Sudah punya akun? <a href="#" onclick="switchModal('form-login')" class="text-brand-600 font-bold hover:underline">Login</a></p>
         </div>
 
         <!-- RENEW -->
-        <div id="form-renew" class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md hidden border border-gray-100">
+        <div id="form-renew" class="bg-white rounded-3xl shadow-2xl p-6 md:p-8 w-full max-w-md hidden border border-gray-100">
             <div class="text-center mb-6">
-                <div class="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                <div class="w-14 h-14 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-3 text-xl"><i class="fa-solid fa-clock-rotate-left"></i></div>
                 <h2 class="text-2xl font-bold text-gray-900">Akses Berakhir</h2>
             </div>
             <div class="space-y-4">
                 <div><label class="block text-sm font-semibold mb-1">Username</label><input type="text" id="renew-username" readonly class="w-full px-4 py-3 rounded-xl border bg-gray-100 text-gray-500 outline-none font-mono"></div>
+                
+           
+<!-- Pemilihan Paket -->
                 <div>
                     <label class="block text-sm font-semibold mb-1">Pilih Durasi Perpanjangan</label>
-                    <select id="renew-paket" class="w-full px-4 py-3 rounded-xl border bg-gray-50 outline-none cursor-pointer focus:ring-2 focus:ring-brand-500">
+                    <select id="renew-paket" onchange="calcTotal('renew')" class="w-full px-4 py-3 rounded-xl border bg-gray-50 outline-none cursor-pointer focus:ring-2 focus:ring-brand-500 transition-all">
                         <option value="1 Hari">1 Hari - Rp 5.000</option>
                         <option value="7 Hari">7 Hari - Rp 25.000</option>
                         <option value="14 Hari">14 Hari - Rp 45.000</option>
                         <option value="30 Hari">30 Hari - Rp 80.000</option>
                     </select>
                 </div>
+
+                <!-- Input Kupon dengan Tombol Cek -->
                 <div>
-                    <label class="block text-sm font-semibold mb-1 text-emerald-600"><i class="fa-solid fa-ticket mr-1"></i> Kode Kupon (Opsional)</label>
-                    <input type="text" id="renew-kupon" class="w-full px-4 py-3 rounded-xl border-emerald-200 bg-emerald-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none uppercase" placeholder="Masukkan jika ada">
+                    <label class="block text-sm font-semibold mb-1 text-brand-600"><i class="fa-solid fa-ticket mr-1"></i> Kode Kupon (Opsional)</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="renew-kupon" oninput="resetKuponState('renew')" class="w-full px-4 py-3 rounded-xl border-brand-200 bg-brand-50 focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none uppercase transition-all" placeholder="Ketik kode kupon...">
+                        <button type="button" onclick="cekKuponAPI('renew')" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-5 rounded-xl shadow-md transition-colors">Cek</button>
+                    </div>
+                    <p id="renew-msg-kupon" class="text-xs font-bold mt-1 hidden"></p>
                 </div>
+
+                <!-- Live Total Preview -->
+                <div class="bg-gray-100 p-4 rounded-xl border border-gray-200 flex justify-between items-center mt-2">
+                    <span class="text-sm font-bold text-gray-600">Total Bayar:</span>
+                    <span id="renew-total-display" class="text-xl font-bold text-gray-900">Rp 5.000</span>
+                </div>
+
                 <button onclick="handleRenew()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-brand-500/30 mt-2 transition-all" id="btn-renew">Perpanjang Sekarang</button>
-                <button onclick="logout()" class="w-full bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold py-3 px-4 rounded-xl border">Ganti Akun</button>
+                <button onclick="logout()" class="w-full bg-white hover:bg-gray-50 text-red-500 font-bold py-3 px-4 rounded-xl border border-red-100 mt-2 transition-colors">Ganti Akun (Keluar)</button>
             </div>
         </div>
     </div>
@@ -839,7 +870,149 @@
                 showView('view-home');
             }
         }
+// ==========================================
+        // LOGIKA KUPON API & KALKULASI HARGA LIVE
+        // ==========================================
+        
+        let verifiedDiscount = 0; // Menyimpan nilai diskon (misal: 0.5 untuk 50%)
+        let activeCoupon = "";    // Menyimpan nama kupon yang sedang aktif
 
+        // Fungsi jika user mengetik ulang di kolom kupon (reset diskon)
+        function resetKuponState(prefix) {
+            verifiedDiscount = 0;
+            activeCoupon = "";
+            document.getElementById(`${prefix}-msg-kupon`).classList.add('hidden');
+            document.getElementById(`${prefix}-kupon`).classList.remove('ring-emerald-500', 'ring-red-500', 'ring-2');
+            calcTotal(prefix);
+        }
+
+        // Fungsi Cek Kupon ke Database Google Sheets
+        async function cekKuponAPI(prefix) {
+            const kuponEl = document.getElementById(`${prefix}-kupon`);
+            const msgEl = document.getElementById(`${prefix}-msg-kupon`);
+            const kuponValue = kuponEl.value.trim().toUpperCase();
+
+            if (!kuponValue) {
+                resetKuponState(prefix); return;
+            }
+
+            // Tampilan Loading
+            msgEl.innerText = "⏳ Mengecek ke database...";
+            msgEl.className = "text-xs font-bold mt-1 text-amber-500 block";
+            
+            try {
+                // Memanggil Google Apps Script API (Menambahkan parameter cek_kupon)
+                const res = await fetch(`${AUTH_API_URL}?cek_kupon=${kuponValue}`);
+                const data = await res.json();
+
+                // Pastikan Apps Script Anda merespon: {"status": "success", "diskon": 0.50}
+                if (data.status === 'success' && data.diskon > 0) {
+                    verifiedDiscount = parseFloat(data.diskon); 
+                    activeCoupon = kuponValue;
+                    
+                    msgEl.innerText = `✅ Kupon Valid! Diskon ${verifiedDiscount * 100}%`;
+                    msgEl.className = "text-xs font-bold mt-1 text-emerald-600 block";
+                    kuponEl.classList.remove('ring-red-500');
+                    kuponEl.classList.add('ring-emerald-500', 'ring-2');
+                } else {
+                    throw new Error("Kupon salah");
+                }
+            } catch (err) {
+                verifiedDiscount = 0;
+                activeCoupon = "";
+                msgEl.innerText = `❌ Kupon tidak valid atau kadaluarsa.`;
+                msgEl.className = "text-xs font-bold mt-1 text-red-500 block";
+                kuponEl.classList.remove('ring-emerald-500');
+                kuponEl.classList.add('ring-red-500', 'ring-2');
+            }
+
+            // Update harga di layar
+            calcTotal(prefix);
+        }
+
+        // Kalkulator Harga Total Live
+        function calcTotal(prefix) {
+            const selectEl = document.getElementById(`${prefix}-paket`);
+            const totalDisplay = document.getElementById(`${prefix}-total-display`);
+            
+            // Ekstrak harga dari select option (misal: "1 Hari - Rp 5.000" -> ambil angka 5000)
+            const rawPriceText = selectEl.options[selectEl.selectedIndex].text;
+            let basePrice = parseInt(rawPriceText.replace(/[^0-9]/g, ''));
+            
+            // Hitung potongan diskon
+            let finalPrice = basePrice - (basePrice * verifiedDiscount);
+            
+            // Tampilkan ke layar
+            totalDisplay.innerText = `Rp ${finalPrice.toLocaleString('id-ID')}`;
+            return finalPrice;
+        }
+
+        // ==========================================
+        // FUNGSI SUBMIT REGISTER & RENEW
+        // ==========================================
+
+        async function handleRegister() {
+            const payload = {
+                action: 'register',
+                nama: document.getElementById('reg-nama').value,
+                username: document.getElementById('reg-username').value,
+                wa: document.getElementById('reg-wa').value,
+                paket: document.getElementById('reg-paket').value,
+                kupon: activeCoupon // Kirim kupon yang sudah tervalidasi
+            };
+
+            if(!payload.nama || !payload.username || !payload.wa) return showToast('Lengkapi semua data!', '#ef4444');
+            const btn = document.getElementById('btn-register');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memproses...';
+
+            try {
+                const res = await fetch(AUTH_API_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const data = await res.json();
+                
+                if(data.status === 'success') {
+                    localStorage.setItem('premium_user', payload.username);
+                    
+                    // Update Harga ke Display Halaman Pembayaran
+                    const displayTotal = calcTotal('reg');
+                    document.getElementById('display-final-price').innerText = `Rp ${displayTotal.toLocaleString('id-ID')}`;
+                    if(verifiedDiscount > 0) document.getElementById('display-discount').classList.remove('hidden');
+                    
+                    hideModalAuth(); 
+                    showPaymentSection();
+                } else showToast(data.message, '#ef4444');
+            } catch (err) { showToast('Koneksi Error. Pastikan URL Apps Script Benar.', '#ef4444'); }
+            btn.innerHTML = 'Lanjut ke Pembayaran';
+        }
+
+        async function handleRenew() {
+            const payload = {
+                action: 'renew',
+                username: document.getElementById('renew-username').value,
+                paket: document.getElementById('renew-paket').value,
+                kupon: activeCoupon // Kirim kupon yang sudah tervalidasi
+            };
+
+            const btn = document.getElementById('btn-renew');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memproses...';
+
+            try {
+                const res = await fetch(AUTH_API_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const data = await res.json();
+                
+                if(data.status === 'success') {
+                    // Update Harga ke Display Halaman Pembayaran
+                    const displayTotal = calcTotal('renew');
+                    document.getElementById('display-final-price').innerText = `Rp ${displayTotal.toLocaleString('id-ID')}`;
+                    if(verifiedDiscount > 0) document.getElementById('display-discount').classList.remove('hidden');
+                    
+                    hideModalAuth(); 
+                    showPaymentSection();
+                } else {
+                    showToast(data.message || 'Gagal memproses perpanjangan', '#ef4444');
+                }
+            } catch (err) { showToast('Koneksi Error. Pastikan URL Apps Script Benar.', '#ef4444'); }
+            btn.innerHTML = 'Perpanjang Sekarang';
+        }
         // --- APP 1: VIDEO PROMPT GENERATOR LOGIC ---
         // Array yang berisi seluruh ID Input dari ke-5 Box + Box Instruksi
         const vgInputs = [
