@@ -835,39 +835,103 @@
         }
         function logout() { localStorage.removeItem('premium_user'); location.reload(); }
 
+        // Fetch User Data Login
         async function handleLogin() {
             const username = document.getElementById('login-username').value;
             if(!username) return showToast('Masukkan username!', '#ef4444');
             const btn = document.getElementById('btn-login');
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memeriksa...';
+            
             try {
                 const res = await fetch(`${AUTH_API_URL}?username=${username}`);
                 const data = await res.json();
-                if(data.status === 'success') { localStorage.setItem('premium_user', data.username); handleRouting(data); } 
-                else showToast('Username tidak ditemukan!', '#ef4444');
-            } catch (err) { showToast('Koneksi Error.', '#ef4444'); }
+                
+                if(data.status === 'success') {
+                    // --- PENAMBAHAN KODE SESUAI PERMINTAAN ---
+                    // 1. Tampilkan data harga jika status masih pending
+                    if (data.accountStatus === 'pending' && data.harga) {
+                        const formatRupiah = new Intl.NumberFormat('id-ID', {
+                            style: 'currency',
+                            currency: 'IDR',
+                            minimumFractionDigits: 0
+                        }).format(data.harga); // data.harga ini didapat dari Apps Script baru kita
+                        
+                        // 2. Masukkan harganya ke elemen HTML Pembayaran
+                        document.getElementById('display-final-price').innerText = formatRupiah;
+                        
+                        // (Opsional) Sembunyikan tulisan "Termasuk Diskon Kupon!" agar rapi saat diload ulang
+                        document.getElementById('display-discount').classList.add('hidden');
+                    }
+                    // ------------------------------------------
+
+                    localStorage.setItem('premium_user', data.username); 
+                    handleRouting(data); 
+                } 
+                else {
+                    showToast('Username tidak ditemukan!', '#ef4444');
+                }
+            } catch (err) { 
+                showToast('Koneksi Error.', '#ef4444'); 
+            }
             btn.innerHTML = 'Masuk Sekarang';
         }
 
         async function checkStatus(username) {
+            // Jika dipanggil dari tombol refresh (tanpa parameter username), ambil dari storage
+            if(!username) username = localStorage.getItem('premium_user');
+            if(!username) return;
+
             try {
                 const res = await fetch(`${AUTH_API_URL}?username=${username}`);
                 const data = await res.json();
-                if(data.status === 'success') handleRouting(data); else logout();
-            } catch (err) {}
+                
+                if(data.status === 'success') {
+                    // --- PENAMBAHAN KODE SESUAI PERMINTAAN ---
+                    // 1. Tampilkan data harga jika status masih pending
+                    if (data.accountStatus === 'pending' && data.harga) {
+                        const formatRupiah = new Intl.NumberFormat('id-ID', {
+                            style: 'currency',
+                            currency: 'IDR',
+                            minimumFractionDigits: 0
+                        }).format(data.harga);
+                        
+                        // 2. Masukkan harganya ke elemen HTML Pembayaran
+                        document.getElementById('display-final-price').innerText = formatRupiah;
+                        
+                        // (Opsional) Sembunyikan tulisan "Termasuk Diskon Kupon!" agar rapi saat diload ulang
+                        document.getElementById('display-discount').classList.add('hidden');
+                    }
+                    // ------------------------------------------
+
+                    handleRouting(data); 
+                } else {
+                    logout();
+                }
+            } catch (err) {
+                console.log("Gagal memuat status");
+            }
         }
 
         function handleRouting(data) {
-            hideModalAuth(); pendingNotice.classList.add('hidden'); paymentSection.classList.add('hidden');
-            if(data.accountStatus === 'pending') pendingNotice.classList.remove('hidden');
+            hideModalAuth(); 
+            pendingNotice.classList.add('hidden'); 
+            paymentSection.classList.add('hidden');
+            
+            if(data.accountStatus === 'pending') {
+                pendingNotice.classList.remove('hidden');
+            }
             else if(data.accountStatus === 'expired') {
-                showModalAuth(); switchModal('form-renew'); document.getElementById('renew-username').value = data.username;
-            } else if(data.accountStatus === 'active') {
+                showModalAuth(); 
+                switchModal('form-renew'); 
+                document.getElementById('renew-username').value = data.username;
+            } 
+            else if(data.accountStatus === 'active') {
                 document.getElementById('user-info').classList.remove('hidden');
                 document.getElementById('nav-nama-user').innerText = data.nama;
                 document.getElementById('nav-expired').innerText = `Aktif s/d: ${data.expiredDate}`;
-                mainApp.classList.remove('hidden'); document.getElementById('main-body').classList.remove('overflow-hidden');
-                showView('view-home');
+                mainApp.classList.remove('hidden'); 
+                document.getElementById('main-body').classList.remove('overflow-hidden');
+                showView('view-home'); // Default view
             }
         }
 // ==========================================
