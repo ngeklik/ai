@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro Master AI - All in One Platform</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Poppins', 'sans-serif'], inter: ['Inter', 'sans-serif'], mono: ['Courier New', 'monospace'] },
+                    // Warna "Pro & Menjual": Royal Blue / Tech Blue
+                    colors: { brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 900: '#1e3a8a' } }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* General Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Select Form */
+        select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-position: right 0.75rem center; background-repeat: no-repeat; background-size: 1.2em; padding-right: 2.5rem; }
+
+        /* Specific styles for App 2 (Prompts Go) */
+        .prompt-text { white-space: pre-wrap; word-wrap: break-word; font-family: 'Inter', sans-serif; line-height: 1.6; }
+        .preview-image { width: 100%; height: auto; max-height: 500px; object-fit: contain; background-color: #f3f4f6; border-radius: 12px; display: block; }
+        .category-btn { white-space: nowrap; transition: 0.2s; border: 1px solid #dadce0; }
+        .category-btn.active { background: #059669; color: white; border-color: #059669; }
+        
+        /* Toast Notification */
+        .toast-popup { visibility: hidden; min-width: 250px; background-color: #10b981; color: #fff; text-align: center; border-radius: 12px; padding: 12px 20px; position: fixed; z-index: 1000; left: 50%; bottom: 90px; transform: translateX(-50%); font-weight: bold; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); opacity: 0; transition: opacity 0.3s, bottom 0.3s; }
+        .toast-popup.show { visibility: visible; bottom: 100px; opacity: 1; }
+    </style>
+</head>
+<body class="font-sans antialiased text-gray-800 bg-gray-50 overflow-hidden pb-20 md:pb-0" id="main-body">
+
+    <!-- === NAVBAR === -->
+    <nav class="fixed top-0 w-full bg-white/90 backdrop-blur-md z-40 shadow-sm border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 md:h-20 items-center">
+                <div class="flex items-center gap-2 md:gap-3 cursor-pointer" onclick="showView('view-home')">
+                    <div class="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-brand-600 to-cyan-500 rounded-lg flex items-center justify-center text-white shadow-lg shadow-brand-500/30">
+                        <i class="fa-solid fa-crown text-sm md:text-base"></i>
+                    </div>
+                    <span class="font-bold text-lg md:text-xl text-gray-900 tracking-tight">Pro Master <span class="text-brand-600">AI</span></span>
+                </div>
+                
+                <div id="user-info" class="hidden flex items-center gap-2 md:gap-4">
+                    <div class="text-right">
+                        <p class="text-xs md:text-sm font-bold text-gray-800 max-w-[100px] md:max-w-xs truncate" id="nav-nama-user">User</p>
+                        <p class="text-[10px] md:text-xs text-emerald-600 font-semibold" id="nav-expired">Aktif</p>
+                    </div>
+                    <button onclick="logout()" class="hidden md:inline-flex bg-red-50 text-red-600 hover:bg-red-100 p-2 md:px-4 md:py-2 rounded-xl text-sm font-bold transition-all border border-red-100 hover:border-red-200">
+                        <i class="fa-solid fa-right-from-bracket mt-1"></i> <span class="ml-1">Keluar</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- === MODALS OVERLAY (AUTH & RENEW) === -->
+    <div id="auth-modal" class="fixed inset-0 bg-gray-900/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+        <!-- LOGIN -->
+        <div id="form-login" class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md border border-gray-100">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-brand-50 text-brand-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"><i class="fa-solid fa-lock"></i></div>
+                <h2 class="text-2xl font-bold text-gray-900">Akses Premium</h2>
+                <p class="text-sm text-gray-500 mt-1">Silakan login untuk mengakses platform.</p>
+            </div>
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Username</label>
+                    <input type="text" id="login-username" class="w-full px-5 py-3.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand-500 outline-none bg-gray-50 focus:bg-white transition-colors" placeholder="Masukkan username">
+                </div>
+                <button onclick="handleLogin()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-brand-500/30 transition-all" id="btn-login">
+                    Masuk Sekarang
+                </button>
+            </div>
+            <p class="text-center mt-8 text-sm text-gray-600">Belum punya akses? <a href="#" onclick="switchModal('form-register')" class="text-brand-600 font-bold hover:underline">Daftar di sini</a></p>
+        </div>
+
+        <!-- REGISTER -->
+        <div id="form-register" class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md hidden max-h-[90vh] overflow-y-auto border border-gray-100">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"><i class="fa-solid fa-user-plus"></i></div>
+                <h2 class="text-2xl font-bold text-gray-900">Pendaftaran Akses</h2>
+            </div>
+            <div class="space-y-4">
+                <div><label class="block text-sm font-semibold mb-1">Nama Lengkap</label><input type="text" id="reg-nama" class="w-full px-4 py-3 rounded-xl border bg-gray-50 outline-none focus:ring-2 focus:ring-emerald-500 transition-all"></div>
+                <div><label class="block text-sm font-semibold mb-1">Username (Bebas)</label><input type="text" id="reg-username" class="w-full px-4 py-3 rounded-xl border bg-gray-50 outline-none focus:ring-2 focus:ring-emerald-500 transition-all"></div>
+                <div><label class="block text-sm font-semibold mb-1">No. WhatsApp</label><input type="number" id="reg-wa" class="w-full px-4 py-3 rounded-xl border bg-gray-50 outline-none focus:ring-2 focus:ring-emerald-500 transition-all" placeholder="0812..."></div>
+                <div>
+                    <label class="block text-sm font-semibold mb-1">Pilih Durasi & Harga</label>
+                    <select id="reg-paket" class="w-full px-4 py-3 rounded-xl border bg-gray-50 outline-none cursor-pointer focus:ring-2 focus:ring-emerald-500 transition-all">
+                        <option value="1 Hari">1 Hari - Rp 5.000</option>
+                        <option value="7 Hari">7 Hari - Rp 25.000</option>
+                        <option value="14 Hari">14 Hari - Rp 45.000</option>
+                        <option value="30 Hari">30 Hari - Rp 80.000</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-1 text-emerald-600"><i class="fa-solid fa-ticket mr-1"></i> Kode Kupon (Opsional)</label>
+                    <input type="text" id="reg-kupon" class="w-full px-4 py-3 rounded-xl border-emerald-200 bg-emerald-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none uppercase" placeholder="Masukkan jika ada">
+                </div>
+                <button onclick="handleRegister()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-emerald-500/30 mt-2 transition-all" id="btn-register">Lanjut ke Pembayaran</button>
+            </div>
+            <p class="text-center mt-6 text-sm text-gray-600">Sudah punya akun? <a href="#" onclick="switchModal('form-login')" class="text-brand-600 font-bold hover:underline">Login</a></p>
+        </div>
+
+        <!-- RENEW -->
+        <div id="form-renew" class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md hidden border border-gray-100">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                <h2 class="text-2xl font-bold text-gray-900">Akses Berakhir</h2>
+            </div>
+            <div class="space-y-4">
+                <div><label class="block text-sm font-semibold mb-1">Username</label><input type="text" id="renew-username" readonly class="w-full px-4 py-3 rounded-xl border bg-gray-100 text-gray-500 outline-none font-mono"></div>
+                <div>
+                    <label class="block text-sm font-semibold mb-1">Pilih Durasi Perpanjangan</label>
+                    <select id="renew-paket" class="w-full px-4 py-3 rounded-xl border bg-gray-50 outline-none cursor-pointer focus:ring-2 focus:ring-brand-500">
+                        <option value="1 Hari">1 Hari - Rp 5.000</option>
+                        <option value="7 Hari">7 Hari - Rp 25.000</option>
+                        <option value="14 Hari">14 Hari - Rp 45.000</option>
+                        <option value="30 Hari">30 Hari - Rp 80.000</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-1 text-emerald-600"><i class="fa-solid fa-ticket mr-1"></i> Kode Kupon (Opsional)</label>
+                    <input type="text" id="renew-kupon" class="w-full px-4 py-3 rounded-xl border-emerald-200 bg-emerald-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none uppercase" placeholder="Masukkan jika ada">
+                </div>
+                <button onclick="handleRenew()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-brand-500/30 mt-2 transition-all" id="btn-renew">Perpanjang Sekarang</button>
+                <button onclick="logout()" class="w-full bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold py-3 px-4 rounded-xl border">Ganti Akun</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- === NOTIFICATION PENDING === -->
+    <div id="pending-notice" class="fixed inset-0 bg-gray-50 z-50 flex flex-col items-center justify-center p-4 hidden">
+        <div class="w-24 h-24 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center text-4xl mb-6 animate-pulse"><i class="fa-solid fa-hourglass-half"></i></div>
+        <h2 class="text-3xl font-bold mb-3 text-gray-900 text-center">Menunggu Konfirmasi</h2>
+        <p class="text-gray-600 text-center max-w-md mb-8">Akun Anda sedang ditinjau. Jika Anda sudah transfer namun belum konfirmasi, silakan klik tombol di bawah.</p>
+        <button onclick="showPaymentSection()" class="bg-brand-600 hover:bg-brand-700 text-white px-6 py-3.5 rounded-xl font-bold mb-3 shadow-lg shadow-brand-500/30">Buka Halaman Pembayaran</button>
+        <button onclick="checkStatus()" class="text-gray-600 hover:text-gray-900 font-bold py-2"><i class="fa-solid fa-rotate-right mr-1"></i> Refresh Status</button>
+        <button onclick="logout()" class="mt-6 text-sm text-gray-400 hover:text-gray-600 border-b border-gray-300 pb-1">Keluar dari akun ini</button>
+    </div>
+
+    <!-- === PAYMENT SECTION === -->
+    <section id="payment-section" class="bg-slate-100 pt-24 pb-16 min-h-screen hidden absolute inset-0 z-[60] overflow-y-auto">
+        <div class="container mx-auto max-w-lg px-4">
+            <button onclick="hidePaymentSection()" class="mb-6 text-sm font-bold text-slate-500 hover:text-slate-800 bg-white px-4 py-2 rounded-lg shadow-sm border"><i class="fa-solid fa-arrow-left mr-2"></i> Kembali</button>
+            <div class="bg-white rounded-3xl shadow-xl p-6 md:p-8 border border-slate-100">
+                <div class="text-center mb-6">
+                    <h1 class="text-2xl md:text-3xl font-bold mb-2 text-slate-900">Selesaikan Pembayaran</h1>
+                    <div class="bg-brand-50 border border-brand-100 rounded-2xl p-4 mt-4 inline-block mx-auto min-w-[250px]">
+                        <p class="text-sm font-semibold text-brand-600 mb-1">Total Tagihan Anda:</p>
+                        <h2 class="text-3xl font-bold text-gray-900" id="display-final-price">Rp 0</h2>
+                        <p id="display-discount" class="text-xs text-emerald-600 font-bold mt-1 hidden">Termasuk Diskon Kupon!</p>
+                    </div>
+                </div>
+                <div class="mb-8">
+                    <div class="flex overflow-x-auto no-scrollbar space-x-2 pb-2">
+                        <button onclick="switchPayTab('bank')" id="tab-bank" class="flex-shrink-0 px-5 py-2.5 rounded-full font-bold text-sm bg-teal-600 text-white shadow-md">Transfer Bank</button>
+                        <button onclick="switchPayTab('gopay')" id="tab-gopay" class="flex-shrink-0 px-5 py-2.5 rounded-full font-bold text-sm bg-slate-100 text-slate-500">E-Wallet</button>
+                    </div>
+                </div>
+                <div id="content-bank" class="block">
+                    <div class="bg-teal-50/50 p-5 rounded-xl border border-teal-100">
+                        <p class="text-sm text-slate-700 mb-1">Bank Jago</p>
+                        <div class="flex items-center justify-between bg-white p-3 rounded-lg border border-teal-200 mt-2">
+                            <span class="font-mono font-bold text-teal-700">502142812682</span>
+                            <button onclick="copyText('502142812682', this, 'bg-teal-600')" class="bg-teal-600 text-white text-xs font-bold px-3 py-1.5 rounded-md hover:bg-teal-700 transition">Salin</button>
+                        </div>
+                        <p class="text-sm text-slate-700 mt-3 font-bold">A.N: M. Fahrul Alam</p>
+                    </div>
+                </div>
+                <div id="content-gopay" class="hidden">
+                    <div class="bg-brand-50/50 p-5 rounded-xl border border-brand-100">
+                        <p class="text-sm text-slate-700 mb-1">Gopay / DANA / OVO</p>
+                        <div class="flex items-center justify-between bg-white p-3 rounded-lg border border-brand-200 mt-2">
+                            <span class="font-mono font-bold text-brand-700">081230272157</span>
+                            <button onclick="copyText('081230272157', this, 'bg-brand-600')" class="bg-brand-600 text-white text-xs font-bold px-3 py-1.5 rounded-md hover:bg-brand-700 transition">Salin</button>
+                        </div>
+                        <p class="text-sm text-slate-700 mt-3 font-bold">A.N: M. Fahrul Alam</p>
+                    </div>
+                </div>
+                <hr class="my-6">
+                <div>
+                    <h2 class="text-lg font-bold mb-3 text-slate-800">Langkah Terakhir:</h2>
+                    <div class="bg-amber-50 p-5 rounded-xl border border-amber-200">
+                        <p class="text-amber-700 text-sm mb-4">Setelah transfer, klik tombol di bawah untuk konfirmasi ke Admin.</p>
+                        <button onclick="confirmToWA()" class="w-full bg-[#25D366] hover:bg-[#20bd5a] transition-colors text-white font-bold py-3.5 px-4 rounded-xl shadow-md flex items-center justify-center">
+                            <i class="fa-brands fa-whatsapp text-2xl mr-2"></i> Konfirmasi via WhatsApp
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- === MAIN APPLICATION VIEWS CONTAINER === -->
+    <!-- ========================================== -->
+    <main id="main-app" class="pt-20 md:pt-24 hidden h-screen overflow-y-auto w-full">
+        
+        <!-- 1. VIEW: HOME / DASHBOARD -->
+        <div id="view-home" class="max-w-5xl mx-auto px-4 pb-24 app-view">
+            <div class="text-center mt-6 mb-10">
+                <h1 class="text-2xl md:text-4xl font-bold text-gray-900 mb-2">Selamat Datang di <span class="text-brand-600">Pro Master AI</span></h1>
+                <p class="text-gray-600 text-sm md:text-base">Pilih alat AI yang ingin Anda gunakan hari ini.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Card 1: Video Generator (Brand Blue) -->
+                <div onclick="showView('view-video-gen')" class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:border-brand-200 hover:-translate-y-1 transition-all cursor-pointer group relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-brand-50 rounded-bl-full -z-10 transition-all group-hover:scale-110"></div>
+                    <div class="w-14 h-14 bg-brand-100 text-brand-600 rounded-xl flex items-center justify-center text-2xl mb-5 shadow-inner"><i class="fa-solid fa-clapperboard"></i></div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Video Prompt Gen</h3>
+                    <p class="text-sm text-gray-600 line-clamp-2">Buat prompt cinematic profesional untuk AI Video (Sora, Runway, dll).</p>
+                    <div class="mt-5 text-brand-600 font-bold text-sm flex items-center">Gunakan Alat <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i></div>
+                </div>
+
+                <!-- Card 2: Prompt Library (Emerald Green) -->
+                <div onclick="showView('view-prompt-lib')" class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:border-emerald-200 hover:-translate-y-1 transition-all cursor-pointer group relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-emerald-50 rounded-bl-full -z-10 transition-all group-hover:scale-110"></div>
+                    <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-2xl mb-5 shadow-inner"><i class="fa-solid fa-images"></i></div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Ready-to-Use Prompts</h3>
+                    <p class="text-sm text-gray-600 line-clamp-2">Perpustakaan prompt siap pakai untuk gambar, video, dan website.</p>
+                    <div class="mt-5 text-emerald-600 font-bold text-sm flex items-center">Buka Galeri <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i></div>
+                </div>
+
+                <!-- Card 3: Hook Dictionary (Amber) -->
+                <div onclick="showView('view-hook-dict')" class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:border-amber-200 hover:-translate-y-1 transition-all cursor-pointer group relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-amber-50 rounded-bl-full -z-10 transition-all group-hover:scale-110"></div>
+                    <div class="w-14 h-14 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center text-2xl mb-5 shadow-inner"><i class="fa-solid fa-book-open"></i></div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">600+ Kamus Hook</h3>
+                    <p class="text-sm text-gray-600 line-clamp-2">Kumpulan kalimat pembuka (hook) untuk memancing interaksi audiens.</p>
+                    <div class="mt-5 text-amber-600 font-bold text-sm flex items-center">Buka Kamus <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. VIEW: VIDEO PROMPT GENERATOR (FULL 5 BOXES + INSTRUKSI TAMBAHAN) -->
+        <div id="view-video-gen" class="max-w-7xl mx-auto px-4 pb-24 hidden app-view">
+            <div class="mb-6">
+                <button onclick="showView('view-home')" class="text-sm text-gray-500 hover:text-brand-600 font-semibold transition-colors"><i class="fa-solid fa-arrow-left mr-1"></i> Kembali ke Home</button>
+            </div>
+            <div class="text-center mb-8 md:mb-10">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-2 md:mb-4">Konfigurasi <span class="text-brand-600">Video Prompt</span></h2>
+                <p class="text-gray-600 text-sm md:text-base max-w-2xl mx-auto">Pilih parameter di bawah ini. Teks prompt akan otomatis dirakit.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 relative">
+                
+                <!-- Left Column: Form Settings (5 Boxes + 1) -->
+                <div class="lg:col-span-7 space-y-6 md:space-y-8">
+                    
+                    
+<!-- Box 1: Dasar Adegan -->
+                    <div class="bg-white p-5 md:p-8 rounded-2xl shadow-lg border border-gray-100">
+                        <div class="flex items-center gap-3 mb-5 md:mb-6 pb-4 border-b border-gray-100">
+                            <div class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-brand-50 flex items-center justify-center text-brand-600"><i class="fa-solid fa-clapperboard"></i></div>
+                            <h3 class="text-lg md:text-xl font-semibold text-gray-800">Dasar Adegan</h3>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 mb-4 md:mb-5">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Durasi</label>
+                                <input type="text" id="durasi" value="10 detik" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none transition" placeholder="cth: 5 detik">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Genre</label>
+                                <select id="genre" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none bg-white cursor-pointer transition">
+                                    <option value="Cinematic Sci-Fi">Cinematic Sci-Fi</option>
+                                    <option value="Cyberpunk">Cyberpunk</option>
+                                    <option value="Fantasy Magic">Fantasy Magic</option>
+                                    <option value="Anime / Manga Style">Anime / Manga Style</option>
+                                    <option value="Photorealistic Documentary">Photorealistic Documentary</option>
+                                    <option value="Noir / Detective">Noir / Detective</option>
+                                    <option value="Horror / Thriller">Horror / Thriller</option>
+                                    <option value="Romance / Drama">Romance / Drama</option>
+                                    <option value="Action Blockbuster">Action Blockbuster</option>
+                                    <option value="Surreal Art">Surreal Art</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-4 md:mb-5">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Subjek Utama (Tulis Bebas)</label>
+                            <input type="text" id="subjek" value="seorang astronot wanita" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none transition">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tindakan / Action (Tulis Bebas)</label>
+                            <textarea id="tindakan" rows="2" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none resize-none transition">berjalan perlahan melintasi lanskap gurun alien yang berbatu</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Box 2: Kamera & Mood -->
+                    <div class="bg-white p-5 md:p-8 rounded-2xl shadow-lg border border-gray-100">
+                        <div class="flex items-center gap-3 mb-5 md:mb-6 pb-4 border-b border-gray-100">
+                            <div class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-brand-50 flex items-center justify-center text-brand-600"><i class="fa-solid fa-camera"></i></div>
+                            <h3 class="text-lg md:text-xl font-semibold text-gray-800">Kamera & Suasana</h3>
+                        </div>
+                        <div class="mb-4 md:mb-5">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Suasana Hati (Mood/Tone)</label>
+                            <select id="suasana" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none bg-white cursor-pointer transition">
+                                <option value="Mysterious & Grand">Mysterious & Grand</option>
+                                <option value="Dark & Gritty">Dark & Gritty</option>
+                                <option value="Bright & Cheerful">Bright & Cheerful</option>
+                                <option value="Melancholic & Sad">Melancholic & Sad</option>
+                                <option value="Tense & Suspenseful">Tense & Suspenseful</option>
+                                <option value="Dreamy & Ethereal">Dreamy & Ethereal</option>
+                                <option value="Epic & Heroic">Epic & Heroic</option>
+                                <option value="Nostalgic & Warm">Nostalgic & Warm</option>
+                                <option value="Fast-paced & Energetic">Fast-paced & Energetic</option>
+                                <option value="Calm & Peaceful">Calm & Peaceful</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 mb-4 md:mb-5">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Lensa</label>
+                                <select id="lensa" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none bg-white cursor-pointer transition">
+                                    <option value="35mm Anamorphic Lens">35mm Anamorphic Lens</option>
+                                    <option value="50mm Prime Lens (Bokeh)">50mm Prime Lens (Bokeh)</option>
+                                    <option value="14mm Ultra-Wide Angle">14mm Ultra-Wide Angle</option>
+                                    <option value="85mm Portrait Lens">85mm Portrait Lens</option>
+                                    <option value="Macro Lens">Macro Lens (Extreme Detail)</option>
+                                    <option value="Fisheye Lens">Fisheye Lens</option>
+                                    <option value="24mm Wide Angle Lens">24mm Wide Angle Lens</option>
+                                    <option value="200mm Telephoto Lens">200mm Telephoto Lens</option>
+                                    <option value="Tilt-Shift Lens">Tilt-Shift Lens (Miniature effect)</option>
+                                    <option value="Vintage 16mm Film Lens">Vintage 16mm Film Lens</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Gerakan Kamera</label>
+                                <select id="gerakkamera" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none bg-white cursor-pointer transition">
+                                    <option value="Slow Pan Left to Right">Slow Pan Left to Right</option>
+                                    <option value="Tracking Shot (Following Subject)">Tracking Shot (Following Subject)</option>
+                                    <option value="Drone Reveal Shot (Flying up)">Drone Reveal Shot (Flying up)</option>
+                                    <option value="Zoom In Slowly">Zoom In Slowly</option>
+                                    <option value="Handheld (Shaky Cam)">Handheld (Shaky Cam)</option>
+                                    <option value="Dolly Push (Moving Forward)">Dolly Push (Moving Forward)</option>
+                                    <option value="Crane Shot (Sweeping)">Crane Shot (Sweeping)</option>
+                                    <option value="Static / Fixed Tripod">Static / Fixed Tripod</option>
+                                    <option value="Orbit (Circling Subject)">Orbit (Circling Subject)</option>
+                                    <option value="POV (First Person View)">POV (First Person View)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Rasio Aspek</label>
+                                <select id="ar" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none bg-white cursor-pointer transition">
+                                    <option value="16:9">16:9 (Landscape Cinematic)</option>
+                                    <option value="9:16">9:16 (Vertical/Shorts)</option>
+                                    <option value="1:1">1:1 (Square)</option>
+                                    <option value="21:9">21:9 (Ultrawide Cinematic)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Pembingkaian (Framing)</label>
+                                <select id="bingkai" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none bg-white cursor-pointer transition">
+                                    <option value="Wide Shot">Wide Shot</option>
+                                    <option value="Medium Shot">Medium Shot</option>
+                                    <option value="Close-up">Close-up</option>
+                                    <option value="Extreme Close-up">Extreme Close-up</option>
+                                    <option value="Cowboy Shot">Cowboy Shot</option>
+                                    <option value="Over-the-shoulder">Over-the-shoulder</option>
+                                    <option value="Drone / Aerial Shot">Drone / Aerial Shot</option>
+                                    <option value="Low Angle Shot">Low Angle Shot (Heroic)</option>
+                                    <option value="High Angle Shot">High Angle Shot</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Box 3: Pencahayaan & Warna -->
+                    <div class="bg-white p-5 md:p-8 rounded-2xl shadow-lg border border-gray-100">
+                        <div class="flex items-center gap-3 mb-5 md:mb-6 pb-4 border-b border-gray-100">
+                            <div class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-brand-50 flex items-center justify-center text-brand-600"><i class="fa-solid fa-lightbulb"></i></div>
+                            <h3 class="text-lg md:text-xl font-semibold text-gray-800">Pencahayaan & Warna</h3>
+                        </div>
+                        <div class="mb-4 md:mb-5">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Pengaturan Pencahayaan</label>
+                            <select id="cahaya" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none bg-white cursor-pointer transition">
+                                <option value="Cinematic Neon Glow">Cinematic Neon Glow</option>
+                                <option value="Soft Studio Lighting">Soft Studio Lighting</option>
+                                <option value="High Contrast (Chiaroscuro)">High Contrast (Chiaroscuro)</option>
+                                <option value="Silhouette (Backlit)">Silhouette (Backlit)</option>
+                                <option value="Volumetric Lighting (God Rays)">Volumetric Lighting (God Rays)</option>
+                                <option value="Flat / Even Lighting">Flat / Even Lighting</option>
+                                <option value="Under-lighting (Creepy/Horror)">Under-lighting (Creepy/Horror)</option>
+                                <option value="Bioluminescent Glow">Bioluminescent Glow</option>
+                                <option value="Cinematic Teal & Orange lighting">Cinematic Teal & Orange lighting</option>
+                                <option value="Moody Low-Key Lighting">Moody Low-Key Lighting</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Waktu / Cuaca</label>
+                                <select id="waktu" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none bg-white cursor-pointer transition">
+                                    <option value="Golden Hour (Sunset/Sunrise)">Golden Hour (Sunset/Sunrise)</option>
+                                    <option value="Blue Hour (Twilight)">Blue Hour (Twilight)</option>
+                                    <option value="Midnight with Heavy Rain">Midnight with Heavy Rain</option>
+                                    <option value="Foggy Morning">Foggy Morning</option>
+                                    <option value="Bright Sunny Noon">Bright Sunny Noon</option>
+                                    <option value="Overcast / Cloudy">Overcast / Cloudy</option>
+                                    <option value="Heavy Snowstorm">Heavy Snowstorm</option>
+                                    <option value="Desert Sandstorm">Desert Sandstorm</option>
+                                    <option value="Thunderstorm with Flashes">Thunderstorm with Flashes</option>
+                                    <option value="Futuristic Neon Night">Futuristic Neon Night</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Palet Warna</label>
+                                <select id="warna" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none bg-white cursor-pointer transition">
+                                    <option value="High Contrast Teal & Orange">High Contrast Teal & Orange</option>
+                                    <option value="Monochromatic (Black & White)">Monochromatic (Black & White)</option>
+                                    <option value="Pastel & Soft Colors">Pastel & Soft Colors</option>
+                                    <option value="Cyberpunk (Neon Pink & Blue)">Cyberpunk (Neon Pink & Blue)</option>
+                                    <option value="Muted & Desaturated">Muted & Desaturated</option>
+                                    <option value="Vibrant & Highly Saturated">Vibrant & Highly Saturated</option>
+                                    <option value="Vintage Sepia Tone">Vintage Sepia Tone</option>
+                                    <option value="Earth Tones (Browns & Greens)">Earth Tones (Browns & Greens)</option>
+                                    <option value="Cyber-goth (Black & Neon Green)">Cyber-goth (Black & Neon Green)</option>
+                                    <option value="Dreamy Pinks & Purples">Dreamy Pinks & Purples</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+<!-- Box 4: Fisika & Audio -->
+                    <div class="bg-white p-5 md:p-8 rounded-2xl shadow-lg border border-gray-100">
+                        <div class="flex items-center gap-3 mb-5 md:mb-6 pb-4 border-b border-gray-100">
+                            <div class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-brand-50 flex items-center justify-center text-brand-600"><i class="fa-solid fa-compact-disc"></i></div>
+                            <h3 class="text-lg md:text-xl font-semibold text-gray-800">Dinamika & Audio</h3>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 mb-4 md:mb-5">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Kecepatan Gerakan</label>
+                                <select id="cepatgerak" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none bg-white cursor-pointer transition">
+                                    <option value="Smooth Slow Motion (120fps)">Smooth Slow Motion (120fps)</option>
+                                    <option value="Normal Speed (24fps)">Normal Speed (24fps)</option>
+                                    <option value="Hyperlapse / Timelapse">Hyperlapse / Timelapse</option>
+                                    <option value="Fast Motion (Comedic)">Fast Motion (Comedic)</option>
+                                    <option value="Stop Motion Style">Stop Motion Style</option>
+                                    <option value="Glitchy / Stuttering Movement">Glitchy / Stuttering Movement</option>
+                                    <option value="Speed Ramp (Fast then Slow)">Speed Ramp (Fast then Slow)</option>
+                                    <option value="Bullet Time (Matrix style)">Bullet Time (Matrix style)</option>
+                                    <option value="Reverse Motion">Reverse Motion</option>
+                                    <option value="Flowing / Liquid Motion">Flowing / Liquid Motion</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Fisika / Partikel</label>
+                                <select id="fisika" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none bg-white cursor-pointer transition">
+                                    <option value="Low Gravity (Floating gently)">Low Gravity (Floating gently)</option>
+                                    <option value="Heavy Dust Particles in Air">Heavy Dust Particles in Air</option>
+                                    <option value="Raindrops splashing realistically">Raindrops splashing realistically</option>
+                                    <option value="Floating Embers and Sparks">Floating Embers and Sparks</option>
+                                    <option value="Magic Aura / Glowing Dust">Magic Aura / Glowing Dust</option>
+                                    <option value="Realistic Wind Physics (Blowing hair/clothes)">Realistic Wind Physics (Blowing hair/clothes)</option>
+                                    <option value="Water ripples and splashes">Water ripples and splashes</option>
+                                    <option value="Falling Autumn Leaves / Petals">Falling Autumn Leaves / Petals</option>
+                                    <option value="Shattering / Exploding debris">Shattering / Exploding debris</option>
+                                    <option value="Absolute Zero Gravity">Absolute Zero Gravity</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 mb-4 md:mb-5">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Audio / Suasana</label>
+                                <select id="audio" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none bg-white cursor-pointer transition">
+                                    <option value="Intense Synthwave Track">Intense Synthwave Track</option>
+                                    <option value="Gentle Piano & Strings">Gentle Piano & Strings</option>
+                                    <option value="Heavy Wind & Thunder SFX">Heavy Wind & Thunder SFX</option>
+                                    <option value="Complete Silence (Muted)">Complete Silence (Muted)</option>
+                                    <option value="Ambient Sci-Fi Drones">Ambient Sci-Fi Drones</option>
+                                    <option value="Eerie Whispers">Eerie Whispers</option>
+                                    <option value="Upbeat Electronic Beat">Upbeat Electronic Beat</option>
+                                    <option value="Lo-Fi Chillhop Beats">Lo-Fi Chillhop Beats</option>
+                                    <option value="Epic Orchestral Score">Epic Orchestral Score</option>
+                                    <option value="Sounds of Nature (Birds, River)">Sounds of Nature (Birds, River)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Kecepatan Edit (Pacing)</label>
+                                <select id="cepatedit" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none bg-white cursor-pointer transition">
+                                    <option value="Slow and Flowing">Slow and Flowing</option>
+                                    <option value="Fast Cuts (Action-packed)">Fast Cuts (Action-packed)</option>
+                                    <option value="Rhythmic (Sync to Beat)">Rhythmic (Sync to Beat)</option>
+                                    <option value="Long Continuous Take (One-shot)">Long Continuous Take (One-shot)</option>
+                                    <option value="Dreamy Crossfades">Dreamy Crossfades</option>
+                                    <option value="Glitch Transitions">Glitch Transitions</option>
+                                    <option value="Jump Cuts">Jump Cuts</option>
+                                    <option value="Dynamic & Punchy">Dynamic & Punchy</option>
+                                    <option value="Gradual Build-up in Speed">Gradual Build-up in Speed</option>
+                                    <option value="Chaotic and Unpredictable">Chaotic and Unpredictable</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Transisi</label>
+                            <select id="transisi" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none bg-white cursor-pointer transition">
+                                <option value="Fade to Black">Fade to Black</option>
+                                <option value="Cross Dissolve">Cross Dissolve</option>
+                                <option value="Glitch / Digital Transition">Glitch / Digital Transition</option>
+                                <option value="Whip Pan Transition">Whip Pan Transition</option>
+                                <option value="Match Cut">Match Cut</option>
+                                <option value="Zoom Blur Transition">Zoom Blur Transition</option>
+                                <option value="Light Leak / Film Burn">Light Leak / Film Burn</option>
+                                <option value="Iris Wipe">Iris Wipe</option>
+                                <option value="Seamless Masking">Seamless Masking</option>
+                                <option value="Hard Cut">Hard Cut</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Box 5: Batasan & Gaya -->
+                    <div class="bg-white p-5 md:p-8 rounded-2xl shadow-lg border border-gray-100">
+                        <div class="flex items-center gap-3 mb-5 md:mb-6 pb-4 border-b border-gray-100">
+                            <div class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-red-50 flex items-center justify-center text-red-500"><i class="fa-solid fa-shield-halved"></i></div>
+                            <h3 class="text-lg md:text-xl font-semibold text-gray-800">Batasan & Gaya</h3>
+                        </div>
+                        <div class="mb-4 md:mb-5">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Hindari (Negative Prompt)</label>
+                            <select id="hindari" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-red-500 outline-none bg-white cursor-pointer transition">
+                                <option value="Cartoon, bad CGI, deformed faces, text, watermark">Default (Cartoon, bad CGI, deformed faces, text)</option>
+                                <option value="Blurry, out of focus, low resolution, noise">Low Quality (Blurry, out of focus, low res)</option>
+                                <option value="Photorealistic, 3D, CGI">Avoid Realism (For Anime/Art styles)</option>
+                                <option value="People, humans, animals">Landscape Only (No Humans/Animals)</option>
+                                <option value="Bright colors, daylight, sunshine">Dark Only (No bright colors/sunlight)</option>
+                                <option value="Symmetry, perfect shapes, static">Avoid Symmetry (Asymmetric/Dynamic only)</option>
+                                <option value="Modern buildings, cars, technology">Avoid Modern (Fantasy/Historical only)</option>
+                                <option value="Darkness, shadows, moody lighting">Avoid Dark (Bright/Cheerful only)</option>
+                                <option value="Fast motion, blur, shaking camera">Avoid Blur (Static/Clear only)</option>
+                                <option value="Ugly, morphed limbs, extra fingers, mutations">Anatomy Fix (Ugly, morphed limbs, mutations)</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Kepatuhan Gaya (Art Style)</label>
+                                <select id="gaya" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none bg-white cursor-pointer transition">
+                                    <option value="Photorealistic 8k, hyper-detailed render">Photorealistic 8k, hyper-detailed render</option>
+                                    <option value="Unreal Engine 5 Cinematic Render">Unreal Engine 5 Cinematic Render</option>
+                                    <option value="Classic Oil Painting Style">Classic Oil Painting Style</option>
+                                    <option value="Beautiful Watercolor Art">Beautiful Watercolor Art</option>
+                                    <option value="3D Pixar / Disney Animation Style">3D Pixar / Disney Animation Style</option>
+                                    <option value="2D Studio Ghibli Anime Style">2D Studio Ghibli Anime Style</option>
+                                    <option value="Retro Synthwave Vector Art">Retro Synthwave Vector Art</option>
+                                    <option value="Stop-Motion Claymation">Stop-Motion Claymation</option>
+                                    <option value="Vintage 90s VHS Look">Vintage 90s VHS Look</option>
+                                    <option value="Cinematic 35mm Film with heavy grain">Cinematic 35mm Film with heavy grain</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Kontinuitas (Consistency)</label>
+                                <select id="kontinuitas" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-500 outline-none bg-white cursor-pointer transition">
+                                    <option value="Lighting remains consistent throughout scene">Lighting remains consistent throughout scene</option>
+                                    <option value="Subject facial features never change">Subject facial features never change</option>
+                                    <option value="Seamless background with no morphing">Seamless background with no morphing</option>
+                                    <option value="Locked camera focus on main subject">Locked camera focus on main subject</option>
+                                    <option value="Color grading remains strictly identical">Color grading remains strictly identical</option>
+                                    <option value="Weather effects persist without breaking">Weather effects persist without breaking</option>
+                                    <option value="Action sequence matches perfectly frame by frame">Action sequence matches perfectly frame by frame</option>
+                                    <option value="Wardrobe and clothing do not change">Wardrobe and clothing do not change</option>
+                                    <option value="Physics and gravity remain constant">Physics and gravity remain constant</option>
+                                    <option value="Appears as one single continuous unbroken take">Appears as one single continuous unbroken take</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- NEW BOX: Instruksi Tambahan -->
+                    <div class="bg-white p-5 md:p-8 rounded-2xl shadow-lg border border-gray-100 border-l-4 border-l-brand-500">
+                        <h3 class="font-bold text-lg md:text-xl mb-2 text-gray-800">Instruksi Tambahan Video</h3>
+                        <p class="text-sm text-gray-500 mb-4">Detail khusus yang ingin ditambahkan (Misal: Gunakan teknik Low Angle Shot, fokus pada mata subjek).</p>
+                        <textarea id="instruksi" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-300 outline-none focus:ring-2 focus:ring-brand-500 transition-all resize-none" placeholder="Masukkan instruksi kustom di sini..."></textarea>
+                    </div>
+
+                </div>
+
+                <!-- Right Column: Output / Result Panel (Sticky) -->
+                <div class="lg:col-span-5 relative mt-6 lg:mt-0">
+                    <div class="sticky top-24 md:top-28 bg-gray-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col border border-gray-800">
+                        <div class="bg-gray-800 px-5 md:px-6 py-4 flex justify-between items-center border-b border-gray-700">
+                            <div class="flex items-center gap-2 text-white">
+                                <i class="fa-solid fa-terminal text-brand-400"></i>
+                                <h3 class="font-semibold tracking-wide text-sm md:text-base">Output Prompt</h3>
+                            </div>
+                            <button id="btn-copy-vg" class="text-xs md:text-sm font-bold bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center gap-2 shadow-lg shadow-brand-500/30">
+                                <i class="fa-regular fa-copy"></i> Salin
+                            </button>
+                        </div>
+                        
+                        <div class="p-5 md:p-6 flex-grow">
+                            <textarea id="vg-output" readonly class="w-full h-[350px] md:h-[480px] bg-gray-900 text-emerald-400 font-mono text-sm leading-relaxed outline-none resize-none no-scrollbar rounded-lg border border-transparent focus:border-brand-500/50 transition-colors"></textarea>
+                        </div>
+
+                        <div class="bg-brand-900/40 px-5 md:px-6 py-4 border-t border-brand-500/20">
+                            <p class="text-gray-300 text-sm flex items-start gap-2">
+                                <i class="fa-solid fa-lightbulb text-brand-400 mt-1"></i>
+                                <span class="leading-relaxed"><strong>Tips Pro:</strong> Gunakan bahasa Inggris (terjemahkan prompt ini) untuk hasil paling akurat pada model AI seperti Sora atau Runway.</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. VIEW: PROMPT READY-TO-USE -->
+        <div id="view-prompt-lib" class="max-w-xl mx-auto px-4 pb-24 hidden app-view">
+            <div class="mb-4 flex items-center justify-between">
+                <button onclick="showView('view-home')" class="text-sm text-gray-500 hover:text-emerald-600 font-semibold transition-colors"><i class="fa-solid fa-arrow-left mr-1"></i> Home</button>
+                <h2 class="text-xl font-bold text-emerald-600"><i class="fa-solid fa-images mr-2"></i>Prompts Go</h2>
+            </div>
+            
+            <div class="sticky top-16 md:top-20 bg-gray-50/95 backdrop-blur-sm z-30 pt-2 pb-4">
+                <div class="relative w-full mb-3 shadow-sm rounded-2xl border border-gray-200 bg-white">
+                    <input type="text" id="pg-search" placeholder="Cari prompt gambar/video..." class="w-full p-3.5 pl-12 rounded-2xl outline-none focus:ring-2 ring-emerald-500 text-sm bg-transparent">
+                    <i class="fa fa-search absolute left-4 top-4 text-gray-400"></i>
+                </div>
+                <div class="flex overflow-x-auto gap-2 no-scrollbar pb-1">
+                    <button onclick="filterPromptLib('All', this)" class="pg-cat-btn active px-5 py-1.5 rounded-full text-sm font-medium bg-emerald-600 text-white border-emerald-600 shadow-sm shrink-0 transition-colors">All</button>
+                    <button onclick="filterPromptLib('Videos', this)" class="pg-cat-btn px-5 py-1.5 rounded-full text-sm font-medium bg-white text-gray-600 border border-gray-200 shrink-0 transition-colors hover:border-emerald-300">Videos</button>
+                    <button onclick="filterPromptLib('Images', this)" class="pg-cat-btn px-5 py-1.5 rounded-full text-sm font-medium bg-white text-gray-600 border border-gray-200 shrink-0 transition-colors hover:border-emerald-300">Images</button>
+                    <button onclick="filterPromptLib('Websites', this)" class="pg-cat-btn px-5 py-1.5 rounded-full text-sm font-medium bg-white text-gray-600 border border-gray-200 shrink-0 transition-colors hover:border-emerald-300">Websites</button>
+                </div>
+            </div>
+
+            <!-- List Container -->
+            <div id="pg-container" class="space-y-4 mt-2">
+                <div class="text-center py-10 text-gray-500"><i class="fa fa-spinner fa-spin mr-2 text-emerald-500"></i>Memuat data prompt...</div>
+            </div>
+
+            <!-- Float Add Button -->
+            <button onclick="document.getElementById('pg-modal').classList.remove('hidden')" class="fixed bottom-24 right-6 bg-emerald-600 text-white w-14 h-14 rounded-full shadow-lg shadow-emerald-500/30 flex items-center justify-center text-xl hover:scale-110 transition z-40 border-2 border-white">
+                <i class="fa fa-plus"></i>
+            </button>
+        </div>
+
+        <!-- MODAL UPLOAD PROMPT -->
+        <div id="pg-modal" class="fixed inset-0 bg-gray-900/80 backdrop-blur-sm z-[70] hidden items-center justify-center p-4">
+            <div class="bg-white rounded-3xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto shadow-2xl">
+                <div class="flex justify-between items-center mb-5">
+                    <h2 class="text-xl font-bold text-gray-900"><i class="fa-solid fa-cloud-arrow-up text-emerald-500 mr-2"></i>Kirim Prompt Baru</h2>
+                    <button onclick="document.getElementById('pg-modal').classList.add('hidden')" class="text-gray-400 text-2xl hover:text-red-500 transition-colors">&times;</button>
+                </div>
+                <form id="pg-form" class="space-y-4">
+                    <input type="text" name="nama" placeholder="Nama Kontributor" required class="w-full border border-gray-200 p-3.5 rounded-xl outline-none focus:ring-2 ring-emerald-500 text-sm bg-gray-50 transition-all">
+                    <input type="text" name="domisili" placeholder="Asal Kota" required class="w-full border border-gray-200 p-3.5 rounded-xl outline-none focus:ring-2 ring-emerald-500 text-sm bg-gray-50 transition-all">
+                    <select name="kategori" class="w-full border border-gray-200 p-3.5 rounded-xl outline-none text-sm bg-gray-50 focus:ring-2 ring-emerald-500 transition-all cursor-pointer">
+                        <option value="Videos">Videos (Link IG Only)</option>
+                        <option value="Images">Images (URL Gambar .jpg/.png)</option>
+                        <option value="Websites">Websites (URL Web)</option>
+                    </select>
+                    <textarea name="prompt" placeholder="Tulis Teks Prompt di sini..." required class="w-full border border-gray-200 p-3.5 rounded-xl h-24 outline-none focus:ring-2 ring-emerald-500 text-sm bg-gray-50 transition-all"></textarea>
+                    <input type="url" name="url" placeholder="URL Target / Bukti Visual" required class="w-full border border-gray-200 p-3.5 rounded-xl outline-none focus:ring-2 ring-emerald-500 text-sm bg-gray-50 transition-all">
+                    <button type="submit" id="pg-submit" class="w-full bg-emerald-600 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-emerald-500/30 hover:bg-emerald-700 transition-colors">Submit Prompt</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 4. VIEW: HOOK DICTIONARY -->
+        <div id="view-hook-dict" class="max-w-4xl mx-auto px-4 pb-24 hidden app-view">
+            <div class="mb-4 flex items-center justify-between">
+                <button onclick="showView('view-home')" class="text-sm text-gray-500 hover:text-amber-600 font-semibold transition-colors"><i class="fa-solid fa-arrow-left mr-1"></i> Home</button>
+                <h2 class="text-xl font-bold text-amber-600"><i class="fa-solid fa-book-open mr-2"></i>Kamus Hook</h2>
+            </div>
+
+            <!-- Tab Menu -->
+            <div class="flex gap-4 mb-4 border-b border-gray-200 pb-2">
+                <button id="hk-tab-all" class="font-bold text-amber-600 border-b-2 border-amber-600 pb-1 px-2 transition-colors" onclick="switchHookTab('all')">Semua Hook</button>
+                <button id="hk-tab-fav" class="font-semibold text-gray-400 hover:text-gray-600 pb-1 px-2 transition-colors" onclick="switchHookTab('fav')">Favorit <i class="fa-solid fa-star text-xs"></i></button>
+            </div>
+
+            <!-- Search & Filter -->
+            <div class="flex flex-col md:flex-row gap-3 mb-6">
+                <div class="relative flex-1">
+                    <i class="fa-solid fa-search absolute left-4 top-3.5 text-gray-400"></i>
+                    <input type="text" id="hk-search" placeholder="Cari kata kunci kalimat hook..." class="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 bg-white focus:ring-2 ring-amber-500 outline-none text-sm transition-all shadow-sm">
+                </div>
+                <select id="hk-category" class="w-full md:w-1/3 px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none text-sm cursor-pointer shadow-sm focus:ring-2 ring-amber-500 transition-all">
+                    <option value="Semua">Semua Kategori</option>
+                </select>
+            </div>
+
+            <p id="hk-stats" class="text-xs text-gray-500 mb-3 hidden">Menampilkan <span id="hk-count" class="font-bold">0</span> hook mematikan</p>
+
+            <div id="hk-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="col-span-full text-center py-10 text-gray-500"><i class="fa fa-spinner fa-spin mr-2 text-amber-500"></i>Memuat Database Kamus...</div>
+            </div>
+
+            <div class="text-center mt-8">
+                <button id="hk-load-btn" class="hidden bg-amber-500 hover:bg-amber-600 text-white px-8 py-3 rounded-full font-bold shadow-lg shadow-amber-500/30 transition-all text-sm">Muat Lebih Banyak</button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- === STICKY BOTTOM NAVIGATION (MOBILE FRIENDLY) === -->
+    <div class="fixed bottom-0 w-full bg-white border-t border-gray-100 flex justify-around items-center py-2 z-40 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)] pb-safe-area md:hidden" id="bottom-nav">
+        <button onclick="showView('view-home')" class="flex flex-col items-center p-2 text-brand-600 w-16">
+            <i class="fa-solid fa-house text-xl mb-1"></i><span class="text-[10px] font-bold">Home</span>
+        </button>
+        <!-- Tombol Float WA Support di tengah Navigasi -->
+        <a href="https://wa.me/6281230272157?text=Halo%20Admin,%20saya%20butuh%20bantuan" target="_blank" class="flex flex-col items-center justify-center w-14 h-14 rounded-full bg-[#25D366] text-white -mt-6 border-4 border-gray-50 shadow-lg shadow-[#25D366]/40 hover:scale-105 transition-transform">
+            <i class="fa-brands fa-whatsapp text-2xl"></i>
+        </a>
+        <button onclick="logout()" class="flex flex-col items-center p-2 text-gray-400 hover:text-red-500 w-16 transition-colors">
+            <i class="fa-solid fa-right-from-bracket text-xl mb-1"></i><span class="text-[10px] font-bold">Keluar</span>
+        </button>
+    </div>
+
+    <!-- TOAST GLOBAL -->
+    <div id="toast-global" class="toast-popup">✅ Berhasil!</div>
+
+
+    <!-- ========================================== -->
+    <!-- === JAVASCRIPT LOGIC INTEGRATION === -->
+    <!-- ========================================== -->
+    <script>
+        // CONFIGURATION URLS
+        const AUTH_API_URL = 'https://script.google.com/macros/s/AKfycbyLJGik0bcb-K2tv_O25vyR4PCqepUh7hJ2Dqh7vHjoMqEq9PxJNyEV7JI0e4AVf8FH/exec'; 
+        const PROMPT_API_URL = "https://script.google.com/macros/s/AKfycbzRzide5dejomN9ceShGcYFdBz7A3RLCAaZ5kgczk0JB1SmngwwwDpIVkVSbr1S2K-X/exec";
+        const HOOK_API_URL = "https://script.google.com/macros/s/AKfycbzBne9z3jPhbJVP3MoBoB0Ha-aa2zaIq-eOM5YBkM7naoqa_B_neeztQs-Y_kA4P45qGg/exec";
+
+        // INIT SCRIPT
+        window.onload = () => {
+            const currentUser = localStorage.getItem('premium_user');
+            if (currentUser) { checkStatus(currentUser); } 
+            else { showModalAuth(); }
+        };
+
+        // --- GLOBAL UTILS ---
+        function showToast(msg, color = '#059669') {
+            const t = document.getElementById('toast-global');
+            t.innerText = msg;
+            t.style.backgroundColor = color;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2500);
+        }
+
+        function copyText(text, btnElement) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Teks berhasil disalin!');
+                if(btnElement) {
+                    const oriHtml = btnElement.innerHTML;
+                    btnElement.innerHTML = '<i class="fa-solid fa-check"></i> Disalin';
+                    setTimeout(() => btnElement.innerHTML = oriHtml, 2000);
+                }
+            }).catch(err => {
+                const textArea = document.createElement("textarea");
+                textArea.value = text; document.body.appendChild(textArea); textArea.select();
+                try { document.execCommand('copy'); showToast('Berhasil disalin!'); } 
+                catch (e) { showToast('Gagal menyalin', '#ef4444'); }
+                document.body.removeChild(textArea);
+            });
+        }
+
+        // --- NAVIGATION ROUTING ---
+        function showView(viewId) {
+            document.querySelectorAll('.app-view').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById(viewId);
+            if(target) {
+                target.classList.remove('hidden');
+                window.scrollTo({top:0, behavior:'smooth'});
+                if(viewId === 'view-prompt-lib' && rawPrompts.length === 0) loadDataPrompts();
+                if(viewId === 'view-hook-dict' && allHooks.length === 0) loadDataHooks();
+            }
+        }
+
+        // --- AUTH & PAYMENT LOGIC ---
+        const authModal = document.getElementById('auth-modal');
+        const mainApp = document.getElementById('main-app');
+        const pendingNotice = document.getElementById('pending-notice');
+        const paymentSection = document.getElementById('payment-section');
+
+        function showModalAuth() { authModal.classList.remove('hidden'); }
+        function hideModalAuth() { authModal.classList.add('hidden'); }
+        function switchModal(id) {
+            ['form-login','form-register','form-renew'].forEach(x => document.getElementById(x).classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+        }
+        function showPaymentSection() { paymentSection.classList.remove('hidden'); pendingNotice.classList.add('hidden'); }
+        function hidePaymentSection() { paymentSection.classList.add('hidden'); pendingNotice.classList.remove('hidden'); }
+        function switchPayTab(type) {
+            document.getElementById('content-bank').style.display = type === 'bank' ? 'block' : 'none';
+            document.getElementById('content-gopay').style.display = type === 'gopay' ? 'block' : 'none';
+            document.getElementById('tab-bank').className = type === 'bank' ? 'flex-shrink-0 px-5 py-2.5 rounded-full font-bold text-sm bg-teal-600 text-white shadow-md' : 'flex-shrink-0 px-5 py-2.5 rounded-full font-bold text-sm bg-slate-100 text-slate-500';
+            document.getElementById('tab-gopay').className = type === 'gopay' ? 'flex-shrink-0 px-5 py-2.5 rounded-full font-bold text-sm bg-brand-600 text-white shadow-md' : 'flex-shrink-0 px-5 py-2.5 rounded-full font-bold text-sm bg-slate-100 text-slate-500';
+        }
+        function confirmToWA() {
+            const username = localStorage.getItem('premium_user') || document.getElementById('reg-username').value;
+            window.open(`https://wa.me/6281230272157?text=${encodeURIComponent(`Halo Admin, konfirmasi pembayaran.\nUsername: *${username}*\nBukti transfer:`)}`, '_blank');
+        }
+        function logout() { localStorage.removeItem('premium_user'); location.reload(); }
+
+        async function handleLogin() {
+            const username = document.getElementById('login-username').value;
+            if(!username) return showToast('Masukkan username!', '#ef4444');
+            const btn = document.getElementById('btn-login');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memeriksa...';
+            try {
+                const res = await fetch(`${AUTH_API_URL}?username=${username}`);
+                const data = await res.json();
+                if(data.status === 'success') { localStorage.setItem('premium_user', data.username); handleRouting(data); } 
+                else showToast('Username tidak ditemukan!', '#ef4444');
+            } catch (err) { showToast('Koneksi Error.', '#ef4444'); }
+            btn.innerHTML = 'Masuk Sekarang';
+        }
+
+        async function checkStatus(username) {
+            try {
+                const res = await fetch(`${AUTH_API_URL}?username=${username}`);
+                const data = await res.json();
+                if(data.status === 'success') handleRouting(data); else logout();
+            } catch (err) {}
+        }
+
+        function handleRouting(data) {
+            hideModalAuth(); pendingNotice.classList.add('hidden'); paymentSection.classList.add('hidden');
+            if(data.accountStatus === 'pending') pendingNotice.classList.remove('hidden');
+            else if(data.accountStatus === 'expired') {
+                showModalAuth(); switchModal('form-renew'); document.getElementById('renew-username').value = data.username;
+            } else if(data.accountStatus === 'active') {
+                document.getElementById('user-info').classList.remove('hidden');
+                document.getElementById('nav-nama-user').innerText = data.nama;
+                document.getElementById('nav-expired').innerText = `Aktif s/d: ${data.expiredDate}`;
+                mainApp.classList.remove('hidden'); document.getElementById('main-body').classList.remove('overflow-hidden');
+                showView('view-home');
+            }
+        }
+
+        // --- APP 1: VIDEO PROMPT GENERATOR LOGIC ---
+        // Array yang berisi seluruh ID Input dari ke-5 Box + Box Instruksi
+        const vgInputs = [
+            'durasi', 'genre', 'subjek', 'tindakan', 'suasana', 'lensa', 'gerakkamera',
+            'ar', 'bingkai', 'cahaya', 'waktu', 'warna', 'cepatgerak', 'fisika',
+            'audio', 'cepatedit', 'transisi', 'hindari', 'gaya', 'kontinuitas', 'instruksi'
+        ];
+
+        function buildVideoPrompt() {
+            // Helper untuk mengambil value dengan aman
+            const val = (id) => {
+                const el = document.getElementById(id);
+                return el && el.value ? el.value.trim() : `[${id}]`;
+            };
+
+            // Merakit Prompt Lengkap Standar Industri
+            let prompt = `Buat adegan ${val('durasi')} ${val('genre')}: ${val('subjek')} ${val('tindakan')}.\n\n`;
+            prompt += `Nada Suasana: ${val('suasana')}.\n`;
+            prompt += `Pengaturan Kamera: ${val('lensa')}, ${val('bingkai')}, ${val('gerakkamera')}.\n`;
+            prompt += `Rasio Aspek: ${val('ar')}.\n`;
+            prompt += `Pencahayaan & Lingkungan: ${val('cahaya')}, ${val('waktu')}, warna: ${val('warna')}.\n`;
+            prompt += `Gerakan & Fisika: ${val('cepatgerak')}, ${val('fisika')}.\n`;
+            prompt += `Audio: ${val('audio')}.\n`;
+            prompt += `Kecepatan Editing: ${val('cepatedit')}, Transisi: ${val('transisi')}.\n\n`;
+            prompt += `Batasan: Hindari ${val('hindari')}.\n`;
+            prompt += `Kepatuhan Gaya: ${val('gaya')}, ${val('kontinuitas')}.`;
+
+            // Menambahkan instruksi kustom jika diisi
+            const customInstruction = document.getElementById('instruksi').value.trim();
+            if(customInstruction) {
+                prompt += `\n\nINSTRUKSI TAMBAHAN KHUSUS:\n${customInstruction}`;
+            }
+
+            // Memasukkan ke kolom output
+            const out = document.getElementById('vg-output');
+            if(out) out.value = prompt;
+        }
+
+        // Listener dinamis untuk setiap perubahan di input Video Generator
+        vgInputs.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) {
+                el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', buildVideoPrompt);
+            }
+        });
+
+        // Event copy untuk Output Prompt
+        document.getElementById('btn-copy-vg').addEventListener('click', () => {
+            copyText(document.getElementById('vg-output').value, document.getElementById('btn-copy-vg'));
+        });
+
+        // Initial build pertama kali halaman dimuat
+        buildVideoPrompt();
+
+
+        // --- APP 2: PROMPT READY-TO-USE LOGIC ---
+        let rawPrompts = [];
+        async function loadDataPrompts() {
+            try {
+                const res = await fetch(PROMPT_API_URL);
+                rawPrompts = await res.json();
+                renderPrompts(rawPrompts);
+            } catch (e) { document.getElementById('pg-container').innerHTML = "<div class='text-center p-4 text-red-500 font-semibold'>Gagal memuat data prompt. Coba lagi nanti.</div>"; }
+        }
+
+        function renderPrompts(data) {
+            const c = document.getElementById('pg-container');
+            if(data.length === 0) return c.innerHTML = "<div class='text-center py-10 text-gray-500'><i class='fa-regular fa-folder-open text-2xl mb-2 block'></i>Tidak ada prompt.</div>";
+            c.innerHTML = data.map(item => `
+                <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition">
+                    <div class="p-3 border-b flex justify-between items-center bg-gray-50/50">
+                        <div><p class="font-bold text-sm text-gray-800">${item.Nama}</p><p class="text-[10px] text-gray-500">${item.Domisili}</p></div>
+                        <span class="text-[10px] bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full uppercase font-bold border border-emerald-100">${item.Kategori}</span>
+                    </div>
+                    <div class="p-4">
+                        <div class="relative bg-emerald-50/30 p-4 rounded-xl mb-4 border border-emerald-100">
+                            <p class="prompt-text text-sm text-gray-700 italic" id="txt-${item.Nama.replace(/\s/g,'')}">${item.Prompt}</p>
+                            <button onclick="copyText(document.getElementById('txt-${item.Nama.replace(/\s/g,'')}').innerText, this)" class="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-white rounded-full shadow-sm text-emerald-600 active:scale-90 transition-transform hover:bg-emerald-50"><i class="fa fa-copy"></i></button>
+                        </div>
+                        ${renderPreviewPrompt(item.Kategori, item.URL_Preview)}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderPreviewPrompt(cat, url) {
+            if (cat === 'Videos' && url.includes('instagram.com')) {
+                return `<iframe src="${url.split('?')[0]}embed" frameborder="0" class="w-full rounded-xl border border-gray-100" style="min-height:350px;"></iframe>`;
+            } else if (cat === 'Images') {
+                return `<img src="${url}" class="preview-image cursor-zoom-in border border-gray-100" onclick="window.open('${url}','_blank')" onerror="this.style.display='none'">`;
+            } else {
+                return `<a href="${url}" target="_blank" class="flex items-center justify-between p-3 bg-gray-50 border rounded-xl hover:bg-emerald-50 transition group"><span class="text-xs text-gray-600 truncate mr-2 group-hover:text-emerald-700 font-medium">${url}</span><span class="bg-emerald-600 text-white text-[10px] font-bold px-4 py-2 rounded-lg shadow-sm">Buka Link</span></a>`;
+            }
+        }
+
+        function filterPromptLib(cat, btn) {
+            document.querySelectorAll('.pg-cat-btn').forEach(b => {
+                b.className = "pg-cat-btn px-5 py-1.5 rounded-full text-sm font-medium bg-white text-gray-600 border border-gray-200 shrink-0 transition-colors hover:border-emerald-300";
+            });
+            btn.className = "pg-cat-btn active px-5 py-1.5 rounded-full text-sm font-medium bg-emerald-600 text-white border-emerald-600 shadow-sm shrink-0 transition-colors";
+            renderPrompts(cat === 'All' ? rawPrompts : rawPrompts.filter(d => d.Kategori === cat));
+        }
+
+        document.getElementById('pg-search').addEventListener('input', (e) => {
+            const q = e.target.value.toLowerCase();
+            renderPrompts(rawPrompts.filter(d => d.Prompt.toLowerCase().includes(q) || d.Nama.toLowerCase().includes(q)));
+        });
+
+        document.getElementById('pg-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('pg-submit'); btn.disabled = true; btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Mengirim...';
+            try {
+                await fetch(PROMPT_API_URL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify(Object.fromEntries(new FormData(e.target))) });
+                showToast("Berhasil Terkirim!", "#059669"); document.getElementById('pg-modal').classList.add('hidden'); e.target.reset();
+            } catch(e) { showToast("Gagal kirim. Coba lagi.", "#ef4444"); }
+            btn.disabled = false; btn.innerHTML = 'Submit Prompt';
+        }
+
+
+        // --- APP 3: HOOK DICTIONARY LOGIC ---
+        let allHooks = [], filteredHooks = [], favHooks = JSON.parse(localStorage.getItem('favHooks')) || [];
+        let hkCurrentTab = 'all', hkPage = 1; const hkLimit = 20;
+
+        async function loadDataHooks() {
+            try {
+                const res = await fetch(HOOK_API_URL);
+                const data = await res.json();
+                if(data && data.length > 0) { allHooks = data.map(i => ({text: i.hook, category: i.kategori})); initHooks(); }
+                else throw 'empty';
+            } catch (e) { document.getElementById('hk-container').innerHTML = "<div class='text-center p-4 text-red-500 font-semibold'>Gagal memuat data hook.</div>"; }
+        }
+
+        function initHooks() {
+            const cats = [...new Set(allHooks.map(h => h.category))].sort();
+            const select = document.getElementById('hk-category');
+            cats.forEach(c => select.insertAdjacentHTML('beforeend', `<option value="${c}">${c}</option>`));
+            document.getElementById('hk-stats').classList.remove('hidden');
+            applyFilterHooks();
+        }
+
+        function applyFilterHooks() {
+            const q = document.getElementById('hk-search').value.toLowerCase();
+            const c = document.getElementById('hk-category').value;
+            let src = hkCurrentTab === 'all' ? allHooks : favHooks;
+            filteredHooks = src.filter(h => h.text.toLowerCase().includes(q) && (c === 'Semua' || h.category === c));
+            hkPage = 1; document.getElementById('hk-container').innerHTML = '';
+            renderHooks();
+        }
+
+        function renderHooks() {
+            const c = document.getElementById('hk-container');
+            const toShow = filteredHooks.slice((hkPage-1)*hkLimit, hkPage*hkLimit);
+            if(filteredHooks.length === 0) c.innerHTML = `<div class="col-span-full text-center py-10 text-gray-500"><i class="fa-regular fa-folder-open text-2xl mb-2 block"></i>Data tidak ditemukan.</div>`;
+            
+            toShow.forEach(h => {
+                const isFav = favHooks.some(f => f.text === h.text);
+                c.insertAdjacentHTML('beforeend', `
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between group hover:shadow-md transition">
+                        <div>
+                            <span class="inline-block px-3 py-1 bg-amber-50 text-amber-600 text-[10px] font-bold rounded-md mb-3 border border-amber-100">${h.category}</span>
+                            <p class="text-sm font-medium text-gray-800 leading-relaxed mb-4">"${h.text}"</p>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-gray-50 pt-3">
+                            <button onclick="copyText('${h.text.replace(/'/g,"\\'")}', this)" class="text-xs font-semibold text-gray-500 hover:text-amber-600 transition flex items-center"><i class="fa-regular fa-copy mr-1"></i> Salin</button>
+                            <button onclick="toggleFavHook('${h.text.replace(/'/g,"\\'")}', '${h.category}', this)" class="text-lg transition ${isFav ? 'text-amber-400 hover:scale-110' : 'text-gray-300 hover:text-amber-300 hover:scale-110'}"><i class="fa-solid fa-star"></i></button>
+                        </div>
+                    </div>
+                `);
+            });
+            document.getElementById('hk-count').innerText = filteredHooks.length;
+            document.getElementById('hk-load-btn').style.display = (hkPage * hkLimit < filteredHooks.length) ? 'inline-block' : 'none';
+        }
+
+        function switchHookTab(tab) {
+            hkCurrentTab = tab;
+            document.getElementById('hk-tab-all').className = tab === 'all' ? "font-bold text-amber-600 border-b-2 border-amber-600 pb-1 px-2 transition-colors" : "font-semibold text-gray-400 hover:text-gray-600 pb-1 px-2 transition-colors";
+            document.getElementById('hk-tab-fav').className = tab === 'fav' ? "font-bold text-amber-600 border-b-2 border-amber-600 pb-1 px-2 transition-colors" : "font-semibold text-gray-400 hover:text-gray-600 pb-1 px-2 transition-colors";
+            applyFilterHooks();
+        }
+
+        function toggleFavHook(text, category, btn) {
+            const idx = favHooks.findIndex(f => f.text === text);
+            if(idx === -1) { favHooks.push({text, category}); btn.classList.replace('text-gray-300', 'text-amber-400'); showToast("Ditambahkan ke favorit!", "#f59e0b"); } 
+            else { favHooks.splice(idx, 1); btn.classList.replace('text-amber-400', 'text-gray-300'); showToast("Dihapus dari favorit.", "#6b7280"); }
+            localStorage.setItem('favHooks', JSON.stringify(favHooks));
+            if(hkCurrentTab === 'fav') applyFilterHooks();
+        }
+
+        document.getElementById('hk-search').addEventListener('input', applyFilterHooks);
+        document.getElementById('hk-category').addEventListener('change', applyFilterHooks);
+        document.getElementById('hk-load-btn').addEventListener('click', () => { hkPage++; renderHooks(); });
+
+    </script>
+</body>
+</html>
