@@ -935,14 +935,16 @@
             const selectEl = document.getElementById(`${prefix}-paket`);
             const totalDisplay = document.getElementById(`${prefix}-total-display`);
             
-            // Ekstrak harga dari select option (misal: "1 Hari - Rp 5.000" -> ambil angka 5000)
+            // Ekstrak harga dengan aman
+            // Contoh: "7 Hari - Rp 25.000" -> Pisahkan dengan 'Rp' -> Ambil yang kedua (" 25.000") -> Saring angkanya
             const rawPriceText = selectEl.options[selectEl.selectedIndex].text;
-            let basePrice = parseInt(rawPriceText.replace(/[^0-9]/g, ''));
+            const priceString = rawPriceText.split('Rp')[1]; 
+            let basePrice = parseInt(priceString.replace(/[^0-9]/g, ''));
             
-            // Hitung potongan diskon
+            // Hitung potongan diskon (Jika verifiedDiscount 0, finalPrice tetap sama dengan basePrice)
             let finalPrice = basePrice - (basePrice * verifiedDiscount);
             
-            // Tampilkan ke layar
+            // Tampilkan ke layar dengan format Rupiah
             totalDisplay.innerText = `Rp ${finalPrice.toLocaleString('id-ID')}`;
             return finalPrice;
         }
