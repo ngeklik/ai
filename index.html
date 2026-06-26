@@ -8,9 +8,85 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .hidden-view { display: none !important; }
+        
+        /* Animasi Kustom untuk Card */
+        .card-hover:hover .card-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+        .card-hover:hover .card-bg-blob {
+            transform: scale(1.5);
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans h-screen overflow-hidden">
+
+    <!-- ================= IKLAN MODAL (Muncul 7 Detik) ================= -->
+    <div id="ad-overlay" class="hidden fixed inset-0 bg-black/90 z-[110] flex items-center justify-center backdrop-blur-sm">
+        <div class="relative max-w-md w-11/12 text-center animate-[fadeIn_0.5s_ease-out]">
+            <p id="ad-timer-text" class="text-white mb-3 font-medium tracking-wide">
+                Iklan dapat ditutup dalam <span id="ad-countdown" class="font-bold text-yellow-400 text-xl">7</span> detik
+            </p>
+            <a href="https://ngeklik.github.io/ai/pro/" target="_blank" class="block">
+                <img src="https://cdn.laju.dev/slugpost//assets/019f0184-8529-75d8-92c8-e90b6131ceca.webp" alt="Pro Master AI" class="w-full rounded-2xl shadow-[0_0_40px_rgba(255,255,255,0.2)] border-2 border-white/20 transform transition-transform hover:scale-[1.02]">
+            </a>
+            <button type="button" id="btn-close-ad" onclick="closeAd()" class="hidden mx-auto mt-6 bg-white/20 hover:bg-white/40 text-white border border-white/50 px-8 py-2.5 rounded-full backdrop-blur-md transition-all font-bold tracking-wide">
+                Tutup Iklan <i class="fa-solid fa-xmark ml-2"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- ================= TUTORIAL MODAL (4 SLIDE) ================= -->
+    <div id="tutorial-overlay" class="hidden fixed inset-0 bg-gray-900/80 z-[100] flex items-center justify-center backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-2xl w-11/12 max-w-sm overflow-hidden shadow-2xl relative transform transition-all">
+            
+            <!-- Slides -->
+            <div id="slide-1" class="tutorial-slide p-8 text-center flex flex-col items-center">
+                <div class="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-3xl mb-4">
+                    <i class="fa-solid fa-layer-group"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">1. Pilih Fitur</h3>
+                <p class="text-sm text-gray-500">Pilih tool generator prompt yang tersedia di dashboard sesuai kebutuhan proyek Anda.</p>
+            </div>
+
+            <div id="slide-2" class="tutorial-slide hidden p-8 text-center flex flex-col items-center">
+                <div class="w-20 h-20 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-3xl mb-4">
+                    <i class="fa-solid fa-keyboard"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">2. Generate Prompt</h3>
+                <p class="text-sm text-gray-500">Isi form singkat yang disediakan lalu klik Generate untuk mendapatkan prompt rahasia.</p>
+            </div>
+
+            <div id="slide-3" class="tutorial-slide hidden p-8 text-center flex flex-col items-center">
+                <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-4xl mb-4">
+                    <i class="fa-brands fa-bots"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">3. Paste ke AI</h3>
+                <p class="text-sm text-gray-500">Copy hasil prompt yang muncul, lalu paste ke ChatGPT, Gemini, atau Claude.</p>
+            </div>
+
+            <div id="slide-4" class="tutorial-slide hidden p-8 text-center flex flex-col items-center">
+                <div class="w-20 h-20 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center text-4xl mb-4">
+                    <i class="fa-solid fa-rocket"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">4. Siap Digunakan!</h3>
+                <p class="text-sm text-gray-500">Nikmati hasil dari AI dengan kualitas terbaik. Mari mulai perjalanan AI Anda!</p>
+            </div>
+
+            <!-- Footer Nav -->
+            <div class="flex justify-between items-center p-4 border-t bg-gray-50">
+                <div class="flex gap-2" id="slide-indicators">
+                    <span class="w-2.5 h-2.5 rounded-full bg-blue-600 transition-colors"></span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-gray-300 transition-colors"></span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-gray-300 transition-colors"></span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-gray-300 transition-colors"></span>
+                </div>
+                <button type="button" onclick="nextTutorial()" id="btn-next-tut" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg text-sm font-bold transition-colors">
+                    Lanjut <i class="fa-solid fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- ================= MODAL AUTH ================= -->
     <div id="auth-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-75 z-50 flex items-center justify-center backdrop-blur-sm">
@@ -23,7 +99,6 @@
                 <p class="text-sm text-gray-500">Masukkan username Anda untuk masuk</p>
             </div>
             
-            <!-- FORM LOGIN DIPERBAIKI (MENGGUNAKAN ID BUKAN ONSUBMIT) -->
             <form id="form-login" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Username</label>
@@ -53,7 +128,7 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Username</label>
-                    <input type="text" id="reg-username" required class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 outline-none">
+                    <input type="text" id="reg-username" required class="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 outline-none" placeholder="Minimal 4 karakter tanpa spasi">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">No. WhatsApp</label>
@@ -77,15 +152,19 @@
     <div id="main-app" class="hidden-view h-screen flex flex-col bg-gray-100">
         
         <!-- Top Navbar -->
-        <header class="bg-white shadow-sm flex items-center justify-between px-4 py-3 z-40">
+        <header class="bg-white shadow-sm flex items-center justify-between px-4 py-3 z-40 relative">
             <div class="flex items-center gap-3">
                 <button type="button" onclick="toggleSidebar()" class="text-gray-600 hover:text-gray-900 focus:outline-none text-2xl">
                     <i class="fa-solid fa-bars"></i>
                 </button>
-                <h1 class="font-bold text-xl text-blue-700 hidden sm:block">AI Prompt Gen</h1>
+                <h1 class="font-black text-xl text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-indigo-600 hidden sm:block">AI Prompt Gen</h1>
             </div>
             <div class="flex items-center gap-3">
                 <span class="text-sm font-medium text-gray-600">Halo, <span id="display-name" class="font-bold text-gray-900">User</span>!</span>
+                <!-- Tombol Tutor Ulang -->
+                <button type="button" onclick="startTutorial()" class="hidden md:block bg-blue-100 text-blue-600 px-3 py-1 rounded-md text-sm font-bold hover:bg-blue-200" title="Lihat Tutorial">
+                    <i class="fa-solid fa-circle-info"></i>
+                </button>
                 <button type="button" onclick="handleLogout(event)" class="bg-red-100 text-red-600 px-3 py-1 rounded-md text-sm font-bold hover:bg-red-200">
                     Logout
                 </button>
@@ -95,34 +174,31 @@
         <div class="flex flex-1 overflow-hidden relative">
             
             <!-- Sidebar -->
-            <aside id="sidebar" class="bg-white w-64 shadow-xl h-full absolute md:relative z-20 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
+            <aside id="sidebar" class="bg-white w-64 shadow-xl h-full absolute md:relative z-30 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
                 <nav class="p-4 space-y-2">
-                    <button type="button" onclick="showHome()" class="w-full flex items-center gap-3 text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                    <button type="button" onclick="showHome()" class="w-full flex items-center gap-3 text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors font-medium">
                         <i class="fa-solid fa-house w-5"></i> Dashboard
                     </button>
                     <div class="border-t my-2"></div>
                     <span class="text-xs font-bold text-gray-400 uppercase px-4">Tools Prompt</span>
-                    <button type="button" onclick="openTool('https://slugpost.com/ucapan-promptor', 'Kartu Ucapan')" class="w-full flex items-center gap-3 text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
-                        <i class="fa-solid fa-image w-5"></i> Kartu Ucapan
+                    <button type="button" onclick="openTool('https://slugpost.com/ucapan-promptor', 'Kartu Ucapan')" class="w-full flex items-center gap-3 text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors font-medium">
+                        <i class="fa-solid fa-image w-5 text-blue-500"></i> Kartu Ucapan
                     </button>
-                    <button type="button" onclick="openTool('https://slugpost.com/aiposter-promptor', 'Desain Infografis')" class="w-full flex items-center gap-3 text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
-                        <i class="fa-solid fa-image w-5"></i> Desain Infografis
+                    <button type="button" onclick="openTool('https://slugpost.com/aiposter-promptor', 'Desain Infografis')" class="w-full flex items-center gap-3 text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors font-medium">
+                        <i class="fa-solid fa-palette w-5 text-indigo-500"></i> Desain Infografis
                     </button>
-                    <button type="button" onclick="openTool('https://slugpost.com/promo-postor', 'Promo Produk')" class="w-full flex items-center gap-3 text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
-                        <i class="fa-solid fa-bullhorn w-5"></i> Promo Produk
+                    <button type="button" onclick="openTool('https://slugpost.com/promo-postor', 'Promo Produk')" class="w-full flex items-center gap-3 text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors font-medium">
+                        <i class="fa-solid fa-bullhorn w-5 text-green-500"></i> Promo Produk
                     </button>
-                    <button type="button" onclick="openTool('https://slugpost.com/genprompt-poster-aktivitas-anak', 'Poster Anak')" class="w-full flex items-center gap-3 text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
-                        <i class="fa-solid fa-child w-5"></i> Poster Anak
+                    <button type="button" onclick="openTool('https://slugpost.com/genprompt-poster-aktivitas-anak', 'Poster Anak')" class="w-full flex items-center gap-3 text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors font-medium">
+                        <i class="fa-solid fa-child w-5 text-yellow-500"></i> Poster Anak
                     </button>
-                    <button type="button" onclick="openTool('https://slugpost.com/html-pagetor', 'Landing Page')" class="w-full flex items-center gap-3 text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
-                        <i class="fa-solid fa-laptop-code w-5"></i> Landing Page
+                    <button type="button" onclick="openTool('https://slugpost.com/html-pagetor', 'Landing Page')" class="w-full flex items-center gap-3 text-left px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors font-medium">
+                        <i class="fa-solid fa-laptop-code w-5 text-purple-500"></i> Landing Page
                     </button>
                     <div class="border-t my-2"></div>
                     <button type="button" onclick="openTool('https://slugpost.com/donate-sukasuka', 'Donate Suka-Suka')" class="w-full flex items-center gap-3 text-left px-4 py-3 rounded-lg text-orange-600 bg-orange-50 hover:bg-orange-100 font-bold transition-colors">
                         <i class="fa-solid fa-heart w-5 text-red-500"></i> Donate Suka-Suka
-                    </button>
-                    <button type="button" onclick="handleLogout(event)" class="bg-red-100 text-red-600 px-3 py-1 rounded-md text-sm font-bold hover:bg-red-200">
-                    Logout
                     </button>
                 </nav>
             </aside>
@@ -130,71 +206,118 @@
             <!-- Main Content Area -->
             <main class="flex-1 h-full overflow-y-auto bg-gray-50 relative">
                 
-                <div id="sidebar-overlay" onclick="toggleSidebar()" class="hidden fixed inset-0 bg-black bg-opacity-50 z-10 md:hidden"></div>
+                <div id="sidebar-overlay" onclick="toggleSidebar()" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-20 md:hidden backdrop-blur-sm"></div>
 
                 <!-- 1. Home Dashboard -->
                 <div id="home-view" class="p-4 md:p-8">
-                    <button onclick="openTool('https://slugpost.com/assis-gen', '')" class="fixed bottom-6 right-6 z-50 flex items-center justify-center group cursor-pointer transition-all duration-300 hover:scale-110">
-    <!-- Efek Gelombang / Radar (Memancar Terus-menerus) -->
-    <span class="absolute w-full h-full rounded-full bg-[#25D366] opacity-70 animate-ping"></span>
-    <!-- Gambar (Ditambahkan relative z-10 agar berada di depan gelombang) -->
-    <img src="https://cdn.laju.dev/slugpost//assets/019ea0b9-8309-737c-8e47-cb427f46df9b.webp" alt="AI Ngeklik" class="relative z-10 w-20 h-20 rounded-full border-4 border-white shadow-2xl object-cover bg-white">
-    <!-- Tooltip (Ditambahkan z-20 agar tidak tertutup animasi) -->
-    <span class="absolute right-[95px] bg-white text-gray-800 text-sm font-bold px-3 py-1.5 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-gray-100 z-20">
-        AI Asisten Ngeklik
-        <!-- Panah tooltip -->
-        <svg class="absolute text-white h-3 w-full left-0 top-1/2 -translate-y-1/2 ml-full translate-x-full" x="0px" y="0px" viewBox="0 0 255 255" xml:space="preserve"><polygon class="fill-current" points="0,0 127.5,127.5 0,255"/></svg>
-    </span>
-</button>
-                    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-6 md:p-8 text-white shadow-lg mb-8">
-                        <h2 class="text-2xl md:text-3xl font-bold mb-2">Selamat Datang, <span id="welcome-name"></span>! 👋</h2>
-                        <p class="opacity-90">Pilih tool generator di bawah ini untuk mulai membuat prompt AI yang teroptimasi dengan mudah.</p>
+                    <!-- Widget Asisten Ngeklik -->
+                    <button onclick="openTool('https://slugpost.com/assis-gen', '')" class="fixed bottom-6 right-6 z-40 flex items-center justify-center group cursor-pointer transition-all duration-300 hover:scale-110">
+                        <span class="absolute w-full h-full rounded-full bg-[#25D366] opacity-70 animate-ping"></span>
+                        <img src="https://cdn.laju.dev/slugpost//assets/019ea0b9-8309-737c-8e47-cb427f46df9b.webp" alt="AI Ngeklik" class="relative z-10 w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white shadow-2xl object-cover bg-white">
+                        <span class="absolute right-[85px] md:right-[95px] bg-white text-gray-800 text-sm font-bold px-3 py-1.5 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-gray-100 z-20">
+                            AI Asisten Ngeklik
+                            <svg class="absolute text-white h-3 w-full left-0 top-1/2 -translate-y-1/2 ml-full translate-x-full" x="0px" y="0px" viewBox="0 0 255 255" xml:space="preserve"><polygon class="fill-current" points="0,0 127.5,127.5 0,255"/></svg>
+                        </span>
+                    </button>
+
+                    <!-- Banner Welcome -->
+                    <div class="bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 rounded-3xl p-8 md:p-10 text-white shadow-xl mb-8 relative overflow-hidden">
+                        <!-- Ornamen Background -->
+                        <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full transform translate-x-1/3 -translate-y-1/4"></div>
+                        <div class="absolute bottom-0 right-32 w-32 h-32 bg-indigo-300 opacity-20 rounded-full transform translate-y-1/2"></div>
+                        
+                        <div class="relative z-10">
+                            <h2 class="text-3xl md:text-4xl font-black mb-3 drop-shadow-md">Selamat Datang, <span id="welcome-name" class="text-yellow-300"></span>! 👋</h2>
+                            <p class="text-blue-100 text-lg max-w-2xl">Pilih tool generator interaktif di bawah ini untuk mulai membuat prompt AI yang teroptimasi, keren, dan siap pakai.</p>
+                        </div>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6">
-                        <div onclick="openTool('https://slugpost.com/ucapan-promptor', 'Kartu Ucapan')" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 cursor-pointer hover:shadow-md hover:border-blue-300 transition-all group">
-                            <div class="bg-blue-100 w-12 h-12 rounded-lg flex items-center justify-center text-blue-600 text-xl mb-4 group-hover:scale-110 transition-transform">
-                                <i class="fa-solid fa-image"></i>
+                    <!-- Grid Card Interaktif Keren -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                        
+                        <!-- Card 1 -->
+                        <div onclick="openTool('https://slugpost.com/ucapan-promptor', 'Kartu Ucapan')" class="card-hover group relative bg-white rounded-2xl p-6 cursor-pointer shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 overflow-hidden">
+                            <div class="card-bg-blob absolute -right-8 -top-8 w-32 h-32 rounded-full bg-gradient-to-br from-blue-50 to-blue-100 transition-all duration-500 ease-out opacity-30 z-0"></div>
+                            <div class="relative z-10">
+                                <div class="card-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-200 text-blue-600 flex items-center justify-center text-2xl mb-5 shadow-sm transition-transform duration-300">
+                                    <i class="fa-solid fa-image"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-blue-600 transition-colors">Kartu Ucapan</h3>
+                                <p class="text-sm text-gray-500 leading-relaxed">Buat prompt Kartu Ucapan estetik untuk berbagai momen spesial.</p>
                             </div>
-                            <h3 class="text-lg font-bold text-gray-800">Kartu Ucapan</h3>
-                            <p class="text-sm text-gray-500 mt-1">Buat prompt Kartu Ucapan yang keren.</p>
-                        </div>
-                        <div onclick="openTool('https://slugpost.com/aiposter-promptor', 'Desain Infografis')" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 cursor-pointer hover:shadow-md hover:border-blue-300 transition-all group">
-                            <div class="bg-blue-100 w-12 h-12 rounded-lg flex items-center justify-center text-blue-600 text-xl mb-4 group-hover:scale-110 transition-transform">
-                                <i class="fa-solid fa-image"></i>
+                            <div class="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 transition-all duration-300 text-blue-600">
+                                <i class="fa-solid fa-arrow-right-long text-xl"></i>
                             </div>
-                            <h3 class="text-lg font-bold text-gray-800">Desain Infografis</h3>
-                            <p class="text-sm text-gray-500 mt-1">Buat prompt poster infografis yang menarik.</p>
                         </div>
-                        <div onclick="openTool('https://slugpost.com/promo-postor', 'Promo Produk')" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 cursor-pointer hover:shadow-md hover:border-blue-300 transition-all group">
-                            <div class="bg-green-100 w-12 h-12 rounded-lg flex items-center justify-center text-green-600 text-xl mb-4 group-hover:scale-110 transition-transform">
-                                <i class="fa-solid fa-bullhorn"></i>
+
+                        <!-- Card 2 -->
+                        <div onclick="openTool('https://slugpost.com/aiposter-promptor', 'Desain Infografis')" class="card-hover group relative bg-white rounded-2xl p-6 cursor-pointer shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 overflow-hidden">
+                            <div class="card-bg-blob absolute -right-8 -top-8 w-32 h-32 rounded-full bg-gradient-to-br from-indigo-50 to-indigo-100 transition-all duration-500 ease-out opacity-30 z-0"></div>
+                            <div class="relative z-10">
+                                <div class="card-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-100 to-indigo-200 text-indigo-600 flex items-center justify-center text-2xl mb-5 shadow-sm transition-transform duration-300">
+                                    <i class="fa-solid fa-palette"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-indigo-600 transition-colors">Desain Infografis</h3>
+                                <p class="text-sm text-gray-500 leading-relaxed">Konsep layout & struktur visualisasi data yang informatif dan menarik.</p>
                             </div>
-                            <h3 class="text-lg font-bold text-gray-800">Promo Produk</h3>
-                            <p class="text-sm text-gray-500 mt-1">Generator prompt untuk kebutuhan promosi produk.</p>
-                        </div>
-                        <div onclick="openTool('https://slugpost.com/genprompt-poster-aktivitas-anak', 'Poster Anak')" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 cursor-pointer hover:shadow-md hover:border-blue-300 transition-all group">
-                            <div class="bg-yellow-100 w-12 h-12 rounded-lg flex items-center justify-center text-yellow-600 text-xl mb-4 group-hover:scale-110 transition-transform">
-                                <i class="fa-solid fa-child"></i>
+                            <div class="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 transition-all duration-300 text-indigo-600">
+                                <i class="fa-solid fa-arrow-right-long text-xl"></i>
                             </div>
-                            <h3 class="text-lg font-bold text-gray-800">Poster Anak</h3>
-                            <p class="text-sm text-gray-500 mt-1">Desain poster edukasi & aktivitas anak.</p>
                         </div>
-                        <div onclick="openTool('https://slugpost.com/html-pagetor', 'Landing Page')" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 cursor-pointer hover:shadow-md hover:border-blue-300 transition-all group">
-                            <div class="bg-purple-100 w-12 h-12 rounded-lg flex items-center justify-center text-purple-600 text-xl mb-4 group-hover:scale-110 transition-transform">
-                                <i class="fa-solid fa-laptop-code"></i>
+
+                        <!-- Card 3 -->
+                        <div onclick="openTool('https://slugpost.com/promo-postor', 'Promo Produk')" class="card-hover group relative bg-white rounded-2xl p-6 cursor-pointer shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 overflow-hidden">
+                            <div class="card-bg-blob absolute -right-8 -top-8 w-32 h-32 rounded-full bg-gradient-to-br from-green-50 to-green-100 transition-all duration-500 ease-out opacity-30 z-0"></div>
+                            <div class="relative z-10">
+                                <div class="card-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-green-100 to-green-200 text-green-600 flex items-center justify-center text-2xl mb-5 shadow-sm transition-transform duration-300">
+                                    <i class="fa-solid fa-bullhorn"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-green-600 transition-colors">Promo Produk</h3>
+                                <p class="text-sm text-gray-500 leading-relaxed">Hasilkan prompt copywriting sales yang memicu konversi tinggi.</p>
                             </div>
-                            <h3 class="text-lg font-bold text-gray-800">Landing Page</h3>
-                            <p class="text-sm text-gray-500 mt-1">Generator struktur & copy untuk Landing Page.</p>
+                            <div class="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 transition-all duration-300 text-green-600">
+                                <i class="fa-solid fa-arrow-right-long text-xl"></i>
+                            </div>
                         </div>
+
+                        <!-- Card 4 -->
+                        <div onclick="openTool('https://slugpost.com/genprompt-poster-aktivitas-anak', 'Poster Anak')" class="card-hover group relative bg-white rounded-2xl p-6 cursor-pointer shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 overflow-hidden">
+                            <div class="card-bg-blob absolute -right-8 -top-8 w-32 h-32 rounded-full bg-gradient-to-br from-yellow-50 to-yellow-100 transition-all duration-500 ease-out opacity-30 z-0"></div>
+                            <div class="relative z-10">
+                                <div class="card-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-yellow-100 to-yellow-200 text-yellow-600 flex items-center justify-center text-2xl mb-5 shadow-sm transition-transform duration-300">
+                                    <i class="fa-solid fa-child"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-yellow-600 transition-colors">Poster Anak</h3>
+                                <p class="text-sm text-gray-500 leading-relaxed">Generator ide poster edukasi & worksheet aktivitas anak.</p>
+                            </div>
+                            <div class="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 transition-all duration-300 text-yellow-600">
+                                <i class="fa-solid fa-arrow-right-long text-xl"></i>
+                            </div>
+                        </div>
+
+                        <!-- Card 5 -->
+                        <div onclick="openTool('https://slugpost.com/html-pagetor', 'Landing Page')" class="card-hover group relative bg-white rounded-2xl p-6 cursor-pointer shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 overflow-hidden">
+                            <div class="card-bg-blob absolute -right-8 -top-8 w-32 h-32 rounded-full bg-gradient-to-br from-purple-50 to-purple-100 transition-all duration-500 ease-out opacity-30 z-0"></div>
+                            <div class="relative z-10">
+                                <div class="card-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-100 to-purple-200 text-purple-600 flex items-center justify-center text-2xl mb-5 shadow-sm transition-transform duration-300">
+                                    <i class="fa-solid fa-laptop-code"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-800 mb-2 group-hover:text-purple-600 transition-colors">Landing Page</h3>
+                                <p class="text-sm text-gray-500 leading-relaxed">Konsep struktur UI/UX dan copy utama untuk halaman website.</p>
+                            </div>
+                            <div class="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 transition-all duration-300 text-purple-600">
+                                <i class="fa-solid fa-arrow-right-long text-xl"></i>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
                 <!-- 2. Iframe View -->
                 <div id="iframe-view" class="hidden-view h-full flex flex-col">
-                    <div class="bg-white px-4 py-2 border-b flex items-center justify-between shrink-0">
+                    <div class="bg-white px-4 py-2 border-b flex items-center justify-between shrink-0 shadow-sm z-10">
                         <h3 id="iframe-title" class="font-bold text-gray-800">Loading...</h3>
-                        <button type="button" onclick="showHome()" class="text-sm bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-gray-700 font-medium transition-colors">
+                        <button type="button" onclick="showHome()" class="text-sm bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg text-gray-700 font-bold transition-colors">
                             <i class="fa-solid fa-arrow-left mr-1"></i> Kembali
                         </button>
                     </div>
@@ -211,21 +334,18 @@
     <script>
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyDMIWfN9OqNGc7KzfMcBQbNILvnsh9KI--mgWdQDV5A5QvQRD250hKVYxWPsT_cPju/exec"; 
 
-        // 1. Cek Login Saat Web Dibuka
+        // 1. INIT WEB
         document.addEventListener("DOMContentLoaded", () => {
-            // Sembunyikan dashboard secara default
             document.getElementById('main-app').classList.add('hidden-view');
             document.getElementById('auth-overlay').classList.remove('hidden-view');
-            document.getElementById('login-form').classList.remove('hidden-view');
-            document.getElementById('register-form').classList.add('hidden-view');
-
+            
             const activeUser = localStorage.getItem('ai_user_name');
             if (activeUser && activeUser !== "null" && activeUser !== "undefined" && activeUser.trim() !== "") {
                 masukDashboard(activeUser);
             }
         });
 
-        // 2. Toggle Register / Login Form
+        // 2. NAVIGASI AUTH
         function toggleAuth(type) {
             if (type === 'register') {
                 document.getElementById('login-form').classList.add('hidden-view');
@@ -236,15 +356,13 @@
             }
         }
 
-        // 3. LOGIC LOGIN (Diperbaiki menggunakan Event Listener agar pasti diklik)
+        // 3. PROSES LOGIN
         document.getElementById('form-login').addEventListener('submit', async function(e) {
             e.preventDefault(); 
-            
-            const username = document.getElementById('login-username').value;
+            const username = document.getElementById('login-username').value.trim();
             const btnLogin = document.getElementById('btn-login');
 
-            if (username.trim() === "") return;
-            
+            if (username === "") return;
             btnLogin.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Mengecek...';
             btnLogin.disabled = true;
 
@@ -254,35 +372,50 @@
 
                 if (data.status === "success") {
                     localStorage.setItem('ai_user_name', data.nama);
-                    
-                    // Bersihkan URL dari parameter cachebuster jika ada
                     window.history.replaceState({}, document.title, window.location.pathname);
-                    
                     masukDashboard(data.nama);
                     document.getElementById('login-username').value = "";
                 } else {
                     alert("Login Gagal: Username belum terdaftar. Silakan daftar terlebih dahulu.");
                 }
             } catch (error) {
-                alert("Terjadi kesalahan jaringan atau Apps Script. Pastikan koneksi baik.");
-                console.error(error);
+                alert("Terjadi kesalahan jaringan. Pastikan koneksi baik.");
             } finally {
                 btnLogin.innerHTML = '<span>Masuk Dashboard</span>';
                 btnLogin.disabled = false;
             }
         });
 
-        // 4. LOGIC REGISTER
+        // 4. PROSES REGISTER DENGAN CEK DOUBLE USERNAME
         document.getElementById('form-pendaftaran').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
             const btn = document.getElementById('btn-register');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Mendaftar...';
+            const username = document.getElementById('reg-username').value.trim();
+            
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Mengecek Username...';
             btn.disabled = true;
 
+            try {
+                // FITUR 1: Cek apakah username sudah ada
+                const checkRes = await fetch(`${GOOGLE_SCRIPT_URL}?action=login&username=${username}`);
+                const checkData = await checkRes.json();
+
+                if (checkData.status === "success") {
+                    alert(`Gagal Mendaftar! Username "${username}" sudah digunakan. Silakan pilih username lain.`);
+                    btn.innerHTML = '<span>Daftar</span>';
+                    btn.disabled = false;
+                    return; // Stop Eksekusi
+                }
+            } catch (error) {
+                console.log("Pengecekan username dilewati (asumsi masalah jaringan/CORS). Melanjutkan...");
+            }
+
+            // Jika username belum ada, Lanjut Kirim POST
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Menyimpan Data...';
+            
             const data = new URLSearchParams();
             data.append('nama', document.getElementById('reg-name').value);
-            data.append('username', document.getElementById('reg-username').value);
+            data.append('username', username);
             data.append('whatsapp', document.getElementById('reg-wa').value);
             data.append('domisili', document.getElementById('reg-domisili').value);
 
@@ -293,15 +426,16 @@
                 if (result.result === "success") {
                     alert("Registrasi Berhasil! Silakan Login.");
                     toggleAuth('login');
-                    document.getElementById('login-username').value = document.getElementById('reg-username').value;
+                    document.getElementById('login-username').value = username;
                     document.getElementById('form-pendaftaran').reset();
                 } else {
                     alert("Gagal menyimpan data.");
                 }
             } catch (error) {
-                alert("Pendaftaran Terkirim! Silakan coba Login.");
+                // Handling bypass untuk CORS Apps Script (Karena data post biasa masuk meskipun catch error)
+                alert("Pendaftaran Berhasil Dikirim! Silakan coba Login.");
                 toggleAuth('login');
-                document.getElementById('login-username').value = document.getElementById('reg-username').value;
+                document.getElementById('login-username').value = username;
                 document.getElementById('form-pendaftaran').reset();
             } finally {
                 btn.innerHTML = '<span>Daftar</span>';
@@ -309,50 +443,131 @@
             }
         });
 
-        // 5. Fungsi Masuk Dashboard
+        // 5. MASUK DASHBOARD & TRIGGER IKLAN/TUTORIAL
         function masukDashboard(name) {
             document.getElementById('auth-overlay').classList.add('hidden-view');
             document.getElementById('main-app').classList.remove('hidden-view');
             
             document.getElementById('display-name').innerText = name;
             document.getElementById('welcome-name').innerText = name;
+
+            // Logika memunculkan iklan & tutorial
+            if (!sessionStorage.getItem('ad_shown')) {
+                showAd(); // Tampilkan iklan dulu
+            } else if (!localStorage.getItem('tutorial_done')) {
+                startTutorial(); // Jika iklan sudah, tapi belum tutorial, tampilkan
+            }
         }
 
-        // 6. FUNGSI LOGOUT (Cache Buster)
+        // ================= FITUR IKLAN PRO MASTER AI ================= //
+        let adInterval;
+        function showAd() {
+            sessionStorage.setItem('ad_shown', 'true');
+            const adOverlay = document.getElementById('ad-overlay');
+            const btnClose = document.getElementById('btn-close-ad');
+            const timerText = document.getElementById('ad-timer-text');
+            const countdownSpan = document.getElementById('ad-countdown');
+            
+            adOverlay.classList.remove('hidden');
+            
+            let timeLeft = 7;
+            countdownSpan.innerText = timeLeft;
+            btnClose.classList.add('hidden');
+            timerText.classList.remove('hidden');
+
+            adInterval = setInterval(() => {
+                timeLeft--;
+                countdownSpan.innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(adInterval);
+                    timerText.classList.add('hidden');
+                    btnClose.classList.remove('hidden');
+                }
+            }, 1000);
+        }
+
+        function closeAd() {
+            document.getElementById('ad-overlay').classList.add('hidden');
+            // Setelah iklan ditutup, cek apakah perlu menampilkan tutorial
+            if (!localStorage.getItem('tutorial_done')) {
+                setTimeout(startTutorial, 500);
+            }
+        }
+
+        // ================= FITUR TUTORIAL 4 SLIDE ================= //
+        let currentSlide = 1;
+        const totalSlides = 4;
+
+        function startTutorial() {
+            currentSlide = 1;
+            document.getElementById('tutorial-overlay').classList.remove('hidden');
+            updateSlideUI();
+        }
+
+        function nextTutorial() {
+            if (currentSlide < totalSlides) {
+                currentSlide++;
+                updateSlideUI();
+            } else {
+                // Selesai Tutup
+                document.getElementById('tutorial-overlay').classList.add('hidden');
+                localStorage.setItem('tutorial_done', 'true');
+            }
+        }
+
+        function updateSlideUI() {
+            // Sembunyikan semua, lalu tampilkan yang aktif
+            for (let i = 1; i <= totalSlides; i++) {
+                document.getElementById(`slide-${i}`).classList.add('hidden');
+            }
+            document.getElementById(`slide-${currentSlide}`).classList.remove('hidden');
+
+            // Update Titik Indikator
+            const dots = document.getElementById('slide-indicators').children;
+            for (let i = 0; i < dots.length; i++) {
+                if (i === currentSlide - 1) {
+                    dots[i].classList.replace('bg-gray-300', 'bg-blue-600');
+                    dots[i].classList.add('w-6'); // Memanjang style modern
+                } else {
+                    dots[i].classList.replace('bg-blue-600', 'bg-gray-300');
+                    dots[i].classList.remove('w-6');
+                }
+            }
+
+            // Update Tombol Next
+            const btn = document.getElementById('btn-next-tut');
+            if (currentSlide === totalSlides) {
+                btn.innerHTML = 'Mulai Sekarang <i class="fa-solid fa-check ml-1"></i>';
+                btn.classList.replace('bg-blue-600', 'bg-green-600');
+                btn.classList.replace('hover:bg-blue-700', 'hover:bg-green-700');
+            } else {
+                btn.innerHTML = 'Lanjut <i class="fa-solid fa-arrow-right ml-1"></i>';
+                btn.classList.replace('bg-green-600', 'bg-blue-600');
+                btn.classList.replace('hover:bg-green-700', 'hover:bg-blue-700');
+            }
+        }
+
+        // ================= MENU & LOGOUT ================= //
         function handleLogout(event) {
             if(event) event.preventDefault();
-
-            // Hapus Memori
             localStorage.removeItem('ai_user_name');
-            localStorage.clear();
+            localStorage.removeItem('tutorial_done'); // Reset tutorial if you want them to see it on next login, remove line if not
             sessionStorage.clear();
             
-            // Matikan Iframe
-            if(document.getElementById('tool-iframe')) {
-                document.getElementById('tool-iframe').src = "";
-            }
+            if(document.getElementById('tool-iframe')) document.getElementById('tool-iframe').src = "";
             
-            // Ubah UI seketika
             document.getElementById('main-app').classList.add('hidden-view');
             document.getElementById('auth-overlay').classList.remove('hidden-view');
             document.getElementById('login-form').classList.remove('hidden-view');
             document.getElementById('register-form').classList.add('hidden-view');
             
-            if(document.getElementById('login-username')) {
-                document.getElementById('login-username').value = "";
-            }
-
-            // Reload Paksa agar Cache Browser Bersih
-            setTimeout(() => {
-                window.location.href = window.location.pathname + "?v=" + new Date().getTime();
-            }, 100);
+            if(document.getElementById('login-username')) document.getElementById('login-username').value = "";
+            setTimeout(() => { window.location.href = window.location.pathname + "?v=" + new Date().getTime(); }, 100);
         }
 
-        // 7. Hamburger Menu (Mobile)
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebar-overlay');
-            
             if (sidebar.classList.contains('-translate-x-full')) {
                 sidebar.classList.remove('-translate-x-full');
                 overlay.classList.remove('hidden');
@@ -362,25 +577,18 @@
             }
         }
 
-        // 8. Navigasi Home Dashboard
         function showHome() {
             document.getElementById('iframe-view').classList.add('hidden-view');
             document.getElementById('home-view').classList.remove('hidden-view');
             document.getElementById('tool-iframe').src = "";
-            
-            if (window.innerWidth < 768) {
-                toggleSidebar();
-            }
+            if (window.innerWidth < 768) toggleSidebar();
         }
 
-        // 9. Navigasi Buka Tool
         function openTool(url, title) {
             document.getElementById('home-view').classList.add('hidden-view');
             document.getElementById('iframe-view').classList.remove('hidden-view');
-            
             document.getElementById('iframe-title').innerText = title;
             document.getElementById('tool-iframe').src = url;
-
             if (window.innerWidth < 768 && !document.getElementById('sidebar').classList.contains('-translate-x-full')) {
                 toggleSidebar(); 
             }
